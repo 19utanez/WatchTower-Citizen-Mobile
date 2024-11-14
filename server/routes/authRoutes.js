@@ -1,10 +1,12 @@
-// server/routes/authRoutes.js
 import express from 'express';
-import { loginUser } from '../controllers/authController.js';
+import { loginUser, getCitizens } from '../controllers/authController.js';
 
 const router = express.Router();
 
-// Login route
+// POST login route
 router.post('/login', loginUser);
+
+// GET route to fetch all citizens
+router.get('/citizens', getCitizens);
 
 export default router;
