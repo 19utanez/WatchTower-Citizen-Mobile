@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Button } from 'react-native';
+import { StyleSheet, View, Button, TouchableOpacity  } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import { MaterialCommunityIcons } from 'react-native-vector-icons';
 
 export default function MapScreen() {
   const initialCenter = {
@@ -39,6 +40,15 @@ export default function MapScreen() {
 
   return (
     <View style={styles.container}>
+
+  {/* Profile Icon */}
+  <TouchableOpacity
+        style={styles.profileIcon}
+        onPress={() => navigation.navigate('Profile')} // Navigate to ProfileScreen
+      >
+        <MaterialCommunityIcons name="account-circle" size={60} color="#000" />
+      </TouchableOpacity>
+
       <MapView
         style={styles.map}
         region={region}
@@ -67,5 +77,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     width: '100%',
+  },
+  profileIcon: {
+    position: 'absolute',
+    top: 5,
+    left: 5,
+    zIndex: 1, // Ensure the icon is above other elements
   },
 });
