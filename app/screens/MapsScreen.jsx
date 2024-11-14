@@ -2,10 +2,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function HomeScreen() {
+export default function MapsScreen() {
   return (
     <View style={styles.container}>
-      <Text>Welcome to the Home Screen</Text>
+      <Text>Maps Screen dito</Text>
     </View>
   );
 }

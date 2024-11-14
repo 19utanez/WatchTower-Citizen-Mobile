@@ -2,10 +2,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function HomeScreen() {
+export default function ReportScreen () {
   return (
     <View style={styles.container}>
-      <Text>Welcome to the Home Screen</Text>
+      <Text>Welcome to the Report Screen</Text>
     </View>
   );
 }

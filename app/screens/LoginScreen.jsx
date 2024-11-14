@@ -19,7 +19,7 @@ export default function LoginScreen({ navigation }) {
 
       const { token } = response.data;
       console.log('Login successful:', token);
-      navigation.navigate('Home');
+      navigation.navigate('Main');
     } catch (error) {
       console.error('Login failed:', error.response?.data?.message || error.message);
       Alert.alert('Error', 'An error occurred, please try again later.');
