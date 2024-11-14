@@ -8,8 +8,10 @@ import LoginScreen from './app/screens/LoginScreen';
 import HomeScreen from './app/screens/HomeScreen';
 import SignUpScreen from './app/screens/SignUpScreen';
 import ReportScreen from './app/screens/ReportScreen';
-import MapScreen from './app/screens/MapsScreen';
+import MapScreen from './app/screens/MapScreen';
 import NotificationScreen from './app/screens/NotificationScreen';
+import ProfileScreen from './app/screens/ProfileScreen'; // Import ProfileScreen
+import { View, TouchableOpacity } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -77,6 +79,11 @@ export default function App() {
         <Stack.Screen
           name="Main"
           component={TabNavigator}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Profile"
+          component={ProfileScreen} // Add ProfileScreen to the stack
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
