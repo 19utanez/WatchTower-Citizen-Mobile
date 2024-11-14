@@ -27,8 +27,8 @@ const styles = StyleSheet.create({
   },
   profileIcon: {
     position: 'absolute',
-    top: 20,
-    left: 10,
+    top: 5,
+    left: 5,
     zIndex: 1, // Ensure the icon is above other elements
   },
 });

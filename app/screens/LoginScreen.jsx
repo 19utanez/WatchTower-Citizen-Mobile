@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Alert, Image, TouchableOpacity } from 'react-native';
 import axios from 'axios';
+import { SERVER_URL } from '@env'; // Import the environment variable
 
-import logo from '../../assets/logo.png';  // Adjust the path if necessary
+import logo from '../../assets/logo.png';
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
@@ -12,7 +13,7 @@ export default function LoginScreen({ navigation }) {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://192.168.100.13:5000/api/auth/login', {
+      const response = await axios.post(`${SERVER_URL}/api/auth/login`, { // Use SERVER_URL here
         username,
         password,
       });
@@ -30,17 +31,15 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {/* Logo Image */}
       <Image source={logo} style={styles.logo} />
       <Text style={styles.title}>WatchTower</Text>
 
-      {/* "Login" label */}
       <Text style={styles.label}>Login</Text>
 
       <TextInput
         style={styles.input}
         placeholder="Username"
-        placeholderTextColor="#CEC6C6" 
+        placeholderTextColor="#CEC6C6"
         value={username}
         onChangeText={setUsername}
       />
@@ -48,26 +47,25 @@ export default function LoginScreen({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="Password"
-        placeholderTextColor="#CEC6C6" 
+        placeholderTextColor="#CEC6C6"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
 
-      {/* Custom Login Button */}
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>
           {loading ? 'Logging in...' : 'Enter'}
         </Text>
       </TouchableOpacity>
 
-      {/* "Create an Account" text */}
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
         <Text style={styles.createAccountText}>Create an Account</Text>
       </TouchableOpacity>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
