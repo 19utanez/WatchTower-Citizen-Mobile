@@ -31,3 +31,35 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+// Register a new citizen
+export const registerCitizen = async (req, res) => {
+  try {
+    const { firstName, lastName, username, password, email, mobileNumber, address, profileImage } = req.body;
+
+    const newCitizen = new Citizen({
+      firstName,
+      lastName,
+      username,
+      password,
+      email: email || "no data yet",
+      mobileNumber: mobileNumber || "no data yet",
+      address: "no data yet",
+      profileImage: "no data yet",
+      reports: [],
+      role: "citizen",
+      status: "offline",
+    });
+
+    await newCitizen.save();
+
+    // Increment the totalCitizens count in the overallstat collection
+    await OverallStat.updateOne({}, { $inc: { totalCitizens: 1 } });
+
+    res.status(201).json(newCitizen);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error creating citizen' });
+  }
+};
