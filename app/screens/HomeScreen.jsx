@@ -6,14 +6,14 @@ import { MaterialCommunityIcons } from 'react-native-vector-icons';
 export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      <Text>Welcome to the Home Screen</Text>
+      <Text style={styles.title} >Welcome to the Home Screen</Text>
 
       {/* Profile Icon */}
       <TouchableOpacity
         style={styles.profileIcon}
         onPress={() => navigation.navigate('Profile')} // Navigate to ProfileScreen
       >
-        <MaterialCommunityIcons name="account-circle" size={60} color="#000" />
+        <MaterialCommunityIcons name="account-circle" size={60} color="#D9D9D9" />
       </TouchableOpacity>
     </View>
   );
@@ -24,11 +24,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#071025',
   },
   profileIcon: {
     position: 'absolute',
     top: 5,
     left: 5,
     zIndex: 1, // Ensure the icon is above other elements
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#fff'
   },
 });

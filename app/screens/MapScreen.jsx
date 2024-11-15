@@ -46,7 +46,7 @@ export default function MapScreen() {
         style={styles.profileIcon}
         onPress={() => navigation.navigate('Profile')} // Navigate to ProfileScreen
       >
-        <MaterialCommunityIcons name="account-circle" size={60} color="#000" />
+        <MaterialCommunityIcons name="account-circle" size={60}  color="#D9D9D9" />
       </TouchableOpacity>
 
       <MapView
@@ -67,6 +67,7 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#071025',
   },
   map: {
     flex: 1,

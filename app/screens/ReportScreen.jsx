@@ -6,14 +6,14 @@ import { MaterialCommunityIcons } from 'react-native-vector-icons';
 export default function ReportScreen () {
   return (
     <View style={styles.container}>
-      <Text>Welcome to the Report Screen</Text>
+      <Text style={styles.title}>Welcome to the Report Screen</Text>
 
       {/* Profile Icon */}
       <TouchableOpacity
         style={styles.profileIcon}
         onPress={() => navigation.navigate('Profile')} // Navigate to ProfileScreen
       >
-        <MaterialCommunityIcons name="account-circle" size={60} color="#000" />
+        <MaterialCommunityIcons name="account-circle" size={60}  color="#D9D9D9" />
       </TouchableOpacity>
       
     </View>
@@ -25,10 +25,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+    backgroundColor: '#071025',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#fff'
   },
   profileIcon: {
     position: 'absolute',

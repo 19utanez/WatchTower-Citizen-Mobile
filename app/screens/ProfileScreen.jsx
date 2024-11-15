@@ -19,10 +19,10 @@ export default function ProfileScreen({ navigation }) {
             <Text style={styles.profileText}>Profile</Text>
 
             {/* Large Photo Icon */}
-            <FontAwesome name="user-circle" size={120} color="#ccc" style={styles.photoIcon} />
+            <FontAwesome name="user-circle" size={120}   color="#D9D9D9" style={styles.photoIcon} />
 
-            {/* Name Text */}
-            <Text style={styles.nameText}>Fire Unit</Text>
+            {/* Name Text */}   
+            <Text style={styles.nameText}>Gogeta SSJ4 GT</Text>
 
             {/* Buttons */}
             <TouchableOpacity style={styles.button}>
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         paddingTop: 50,
-        backgroundColor: '#fff',
+        backgroundColor: '#071025',
     },
     profileText: {
         fontSize: 24,
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     nameText: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#555',
+        color: '#FFF',
         marginBottom: 30,
     },
     button: {
