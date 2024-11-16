@@ -7,33 +7,39 @@ export default function SignUpScreen({ navigation }) {
   const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://192.168.100.13:5000/api/auth/register', {
-        firstName,
-        lastName,
-        username,
-        password,
-        email,
-        mobileNumber,
-      });
-
-      console.log('Registration successful:', response.data);
-      Alert.alert('Success', 'Account created successfully!');
-      navigation.navigate('Login');
+      const requestBody = {
+        firstName: firstName || "no data yet",
+        lastName: lastName || "no data yet",
+        username: username || "no data yet",
+        password: password || "no data yet",
+        mobileNumber: mobileNumber || "no data yet",
+        email: "no data yet", // Static value
+        address: "no data yet", // Static value
+        profileImage: "no data yet", // Static value
+      };
+  
+      const response = await axios.post(
+        "http://192.168.100.13:5000/api/auth/citizens",
+        requestBody
+      );
+  
+      console.log("Registration successful:", response.data);
+      Alert.alert("Success", "Account created successfully!");
+      navigation.navigate("Login");
     } catch (error) {
-      console.error('Registration failed:', error.response?.data?.message || error.message);
-      Alert.alert('Error', 'An error occurred during registration. Please try again.');
+      console.error("Registration failed:", error.response?.data?.message || error.message);
+      Alert.alert("Error", `An error occurred: ${error.response?.data?.message || error.message}`);
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
@@ -59,13 +65,7 @@ export default function SignUpScreen({ navigation }) {
         value={username}
         onChangeText={setUsername}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        placeholderTextColor="#CEC6C6"
-        value={email}
-        onChangeText={setEmail}
-      />
+
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -74,13 +74,16 @@ export default function SignUpScreen({ navigation }) {
         value={password}
         onChangeText={setPassword}
       />
+
       <TextInput
         style={styles.input}
         placeholder="Mobile Number"
         placeholderTextColor="#CEC6C6"
         value={mobileNumber}
         onChangeText={setMobileNumber}
+        keyboardType="numeric"
       />
+
 
       <TouchableOpacity style={styles.button} onPress={handleSignUp}>
         <Text style={styles.buttonText}>

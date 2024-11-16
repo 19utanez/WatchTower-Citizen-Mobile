@@ -7,6 +7,8 @@ export default function MapScreen() {
   const initialCenter = {
     latitude: 14.601972841610728,
     longitude: 121.03527772039602,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
   };
 
   const [region, setRegion] = useState({
@@ -57,8 +59,9 @@ export default function MapScreen() {
         <Marker coordinate={marker} />
       </MapView>
       <View style={styles.buttonContainer}>
+      <Button title="Zoom Out" onPress={zoomOut} />
         <Button title="Zoom In" onPress={zoomIn} />
-        <Button title="Zoom Out" onPress={zoomOut} />
+
       </View>
     </View>
   );
