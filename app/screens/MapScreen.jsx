@@ -16,39 +16,50 @@ export default function MapScreen({ navigation }) {
   // State for map region and marker location
   const [region, setRegion] = useState(initialCenter);
   const [marker, setMarker] = useState(initialCenter);
-// Function to get place name from latitude and longitude
-const getPlaceName = async (latitude, longitude) => {
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY; // Your API key from .env file
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
-  
-  try {
-    const response = await axios.get(url);
-    console.log("Geocoding API response:", response.data); // Log the response to inspect it
+
+  // Function to get place name from latitude and longitude
+  const getPlaceName = async (latitude, longitude) => {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY; // Your API key from .env file
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
     
-    // Check if we have results and extract the formatted address
-    const address = response.data.results && response.data.results[0]?.formatted_address;
-    return address || 'No address found';
-  } catch (error) {
-    console.error('Error fetching place name:', error);
-    return 'Error fetching address';
-  }
-};
+    try {
+      const response = await axios.get(url);
+      console.log("Geocoding API response:", response.data); // Log the response to inspect it
+      
+      // Check if we have results and extract the formatted address
+      const address = response.data.results && response.data.results[0]?.formatted_address;
+      return address || 'No address found';
+    } catch (error) {
+      console.error('Error fetching place name:', error);
+      return 'Error fetching address';
+    }
+  };
 
-// Handle map press to update marker and display alert with place name
-const handleMapPress = async (event) => {
-  const { latitude, longitude } = event.nativeEvent.coordinate;
-  setMarker({ latitude, longitude });
+  // Handle map press to update marker and display alert with place name
+  const handleMapPress = async (event) => {
+    const { latitude, longitude } = event.nativeEvent.coordinate;
+    setMarker({ latitude, longitude });
 
-  // Get the place name based on the clicked coordinates
-  const placeName = await getPlaceName(latitude, longitude);
+    // Get the place name based on the clicked coordinates
+    const placeName = await getPlaceName(latitude, longitude);
 
-  // Show notification with the place name
-  Alert.alert(
-    "Marker Moved",
-    `You placed the marker at:\n${placeName}`,
-    [{ text: "OK" }]
-  );
-};
+    // Show notification with the place name and options
+    Alert.alert(
+      "Marker Moved",
+      `You placed the marker at:\n${placeName}`,
+      [
+        {
+          text: "Cancel", // Button to cancel
+          onPress: () => console.log("Cancel Pressed"), // Function for cancel (optional for now)
+          style: "cancel", // Style for cancel
+        },
+        {
+          text: "Report Now", // Button to report now
+          onPress: () => console.log("Report Now Pressed"), // Function for report now (optional for now)
+        },
+      ]
+    );
+  };
 
   // Zoom in functionality
   const zoomIn = () => {
@@ -116,3 +127,4 @@ const styles = StyleSheet.create({
     zIndex: 1, // Ensure the icon is above other elements
   },
 });
+  
