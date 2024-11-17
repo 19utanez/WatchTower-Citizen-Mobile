@@ -16,7 +16,7 @@ const ReportSchema = new mongoose.Schema(
         },
         disasterCategory: {
             type: String,
-            enum: ["Flood", "Typhoon",  "Fire", "Animals", "Casualties","Others","Structural_Damage" ],
+            enum: ["Flood", "Typhoon",  "Fire","Others"],
             default: "Others",
             required: true
         },

@@ -1,35 +1,61 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
+import * as ImagePicker from 'expo-image-picker'; // Make sure you install `expo-image-picker`
 
 export default function ReportScreen({ navigation }) {
   const [selectedDisaster, setSelectedDisaster] = useState('');
   const [description, setDescription] = useState('');
+  const [images, setImages] = useState([]); // State to hold uploaded images
+
+  // Function to pick an image
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      alert('Permission to access the media library is required!');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImages((prevImages) => [...prevImages, result.assets[0].uri]);
+    }
+  };
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      {/* Profile Icon */}
-      <TouchableOpacity
-        style={styles.profileIcon}
-        onPress={() => navigation.navigate('Profile')} // Navigate to ProfileScreen
-      >
-        <MaterialCommunityIcons name="account-circle" size={60} color="#D9D9D9" />
-      </TouchableOpacity>
+  
 
-      {/* Location (Non-editable text field) */}
+
+      {/* Location (Non-editable text field with button) */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Location</Text>
-        <TextInput
-          style={[styles.input, styles.nonEditableInput]}
-          value="Current Location" // Replace with dynamic location value if available
-          editable={false} // Non-editable
-        />
+        <View style={styles.locationContainer}>
+          <TextInput
+            style={[styles.input, styles.nonEditableInput]}
+            value="Current Location" // Replace with dynamic location value if available
+            editable={false} // Non-editable
+          />
+          <TouchableOpacity
+            style={styles.mapButton}
+            onPress={() => navigation.navigate('Map')} // Navigate to the "Map" tab
+          >
+            <MaterialCommunityIcons name="map-marker" size={24} color="#D9D9D9" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Dropdown for Disaster Type */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Disaster Type</Text>
+        <Text style={styles.label}>Disaster Category</Text>
         <View style={styles.dropdown}>
           <Picker
             selectedValue={selectedDisaster}
@@ -37,18 +63,26 @@ export default function ReportScreen({ navigation }) {
             style={styles.picker}
           >
             <Picker.Item label="Select a disaster type" value="" />
-            <Picker.Item label="Disaster A" value="Disaster A" />
-            <Picker.Item label="Disaster B" value="Disaster B" />
+            <Picker.Item label="Typhoon" value="Typhoon" />
+            <Picker.Item label="Fire" value="Fire" />
+            <Picker.Item label="Flood" value="Flood" />
+            <Picker.Item label="Others" value="Others" />
           </Picker>
         </View>
       </View>
 
-      {/* Camera Box */}
+      {/* Camera Section */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Attach Image</Text>
-        <TouchableOpacity style={styles.cameraBox}>
+        <TouchableOpacity style={styles.cameraBox} onPress={pickImage}>
           <MaterialCommunityIcons name="camera" size={50} color="#D9D9D9" />
         </TouchableOpacity>
+        {/* Display Images */}
+        <ScrollView horizontal style={styles.imageContainer}>
+          {images.map((image, index) => (
+            <Image key={index} source={{ uri: image }} style={styles.image} />
+          ))}
+        </ScrollView>
       </View>
 
       {/* Description */}
@@ -96,9 +130,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     fontSize: 16,
+    flex: 1, // Allow TextInput to grow and fill space
   },
   nonEditableInput: {
     backgroundColor: '#2A3B4C',
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1E2A3A',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  mapButton: {
+    padding: 10,
+    backgroundColor: '#2A3B4C',
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
   },
   dropdown: {
     backgroundColor: '#1E2A3A',
@@ -114,6 +162,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: 150,
     borderRadius: 8,
+  },
+  imageContainer: {
+    marginTop: 10,
+    flexDirection: 'row',
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    marginRight: 10,
   },
   descriptionInput: {
     height: 100,
