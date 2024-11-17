@@ -13,7 +13,7 @@ export default function LoginScreen({ navigation }) {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(`${SERVER_URL}/api/auth/login`, { // Use SERVER_URL here
+      const response = await axios.post(`http://192.168.1.14:5000/api/auth/login`, { // Use SERVER_URL here
         username,
         password,
       });
