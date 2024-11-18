@@ -41,6 +41,12 @@ export default function ReportScreen({ route, navigation }) {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index));
   };
 
+  // Function to handle submit action
+  const handleSubmit = () => {
+    // Handle the form submission logic here (e.g., save report to the database)
+    alert("Report submitted!");
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       {/* Location */}
@@ -113,6 +119,13 @@ export default function ReportScreen({ route, navigation }) {
           value={description}
           onChangeText={setDescription}
         />
+      </View>
+
+      {/* Submit Button */}
+      <View style={styles.submitButtonContainer}>
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+          <Text style={styles.submitButtonText}>Submit</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -202,4 +215,23 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top', // Ensures text starts at the top
     flexGrow: 1, // Allow the input to grow when text overflows
   },
+  submitButtonContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  submitButton: {
+    height: 50,    // Adjust height
+    backgroundColor: '#D2042D', // Green background for the button
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 25, // Rounded corners
+    marginTop: 20,   // Space above the button
+    width: '60%', // Full width of the container
+  },
+  submitButtonText: {
+    fontSize: 20,  // Font size for the button text
+    color: '#fff', // White text color
+    fontWeight: 'bold',
+  },
+
 });
