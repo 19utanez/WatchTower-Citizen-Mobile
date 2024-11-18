@@ -1,19 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileScreen({ navigation }) {
     const [citizen, setCitizen] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Function to fetch citizen data
+    // Function to fetch citizen data based on the logged-in username
     const fetchCitizenData = async () => {
         try {
-            const response = await fetch('http://192.168.100.13:5000/api/auth/citizens');
-            const data = await response.json();
+            // Get the username from AsyncStorage
+            const loggedInUser = await AsyncStorage.getItem('loggedInUser');
+            const { username } = loggedInUser ? JSON.parse(loggedInUser) : {};
 
-            // Assuming you want the first citizen in the array, or filter by specific logic
-            const loggedInCitizen = data[0]; // Replace this with actual logic to identify the user
-            setCitizen(loggedInCitizen);
+            if (username) {
+                // API call to fetch all citizens
+                const response = await fetch('http://192.168.100.13:5000/api/auth/citizens');
+                const data = await response.json();
+
+                // Find the citizen matching the logged-in username
+                const loggedInCitizen = data.find(citizen => citizen.username === username);
+                
+                if (loggedInCitizen) {
+                    setCitizen(loggedInCitizen);
+                } else {
+                    console.error('Citizen not found');
+                }
+            } else {
+                console.error('No username found in AsyncStorage');
+            }
         } catch (error) {
             console.error('Error fetching citizen data:', error);
         } finally {
