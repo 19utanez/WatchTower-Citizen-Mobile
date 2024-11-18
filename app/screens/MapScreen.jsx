@@ -39,10 +39,10 @@ export default function MapScreen({ navigation }) {
   const handleMapPress = async (event) => {
     const { latitude, longitude } = event.nativeEvent.coordinate;
     setMarker({ latitude, longitude });
-
+  
     // Get the place name based on the clicked coordinates
     const placeName = await getPlaceName(latitude, longitude);
-
+  
     // Show notification with the place name and options
     Alert.alert(
       "Marker Moved",
@@ -55,7 +55,10 @@ export default function MapScreen({ navigation }) {
         },
         {
           text: "Report Now", // Button to report now
-          onPress: () => console.log("Report Now Pressed"), // Function for report now (optional for now)
+          onPress: () => {
+            // Navigate to ReportScreen and pass the selected place name
+            navigation.navigate('Report', { location: placeName });
+          },
         },
       ]
     );

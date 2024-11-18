@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
-import * as ImagePicker from 'expo-image-picker'; // Make sure you install `expo-image-picker`
+import * as ImagePicker from 'expo-image-picker';
 
-export default function ReportScreen({ navigation }) {
+export default function ReportScreen({ route, navigation }) {
   const [selectedDisaster, setSelectedDisaster] = useState('');
   const [description, setDescription] = useState('');
   const [images, setImages] = useState([]); // State to hold uploaded images
+  const [location, setLocation] = useState(''); // State to hold location
+
+  // Extract the location parameter passed from MapScreen
+  useEffect(() => {
+    if (route.params?.location) {
+      setLocation(route.params.location); // Set location if passed
+    }
+  }, [route.params?.location]);
 
   // Function to pick an image
   const pickImage = async () => {
@@ -30,18 +38,20 @@ export default function ReportScreen({ navigation }) {
     }
   };
 
+  // Function to delete an image
+  const deleteImage = (index) => {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-  
-
-
-      {/* Location (Non-editable text field with button) */}
+      {/* Location */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Location</Text>
         <View style={styles.locationContainer}>
           <TextInput
-            style={[styles.input, styles.nonEditableInput]}
-            value="Current Location" // Replace with dynamic location value if available
+            style={[styles.input, styles.nonEditableInput, {flex: 1}]} // Add flex: 1 to make it expandable
+            value={location} // Use the location from the map
             editable={false} // Non-editable
           />
           <TouchableOpacity
@@ -75,12 +85,21 @@ export default function ReportScreen({ navigation }) {
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Attach Image</Text>
         <TouchableOpacity style={styles.cameraBox} onPress={pickImage}>
-          <MaterialCommunityIcons name="camera" size={50} color="#D9D9D9" />
+          <MaterialCommunityIcons name="camera" size={40} color="#D9D9D9" />|
+          <Text style={styles.label}>Click here to upload Images</Text>
         </TouchableOpacity>
-        {/* Display Images */}
+        {/* Display Images with Delete Button */}
         <ScrollView horizontal style={styles.imageContainer}>
           {images.map((image, index) => (
-            <Image key={index} source={{ uri: image }} style={styles.image} />
+            <View key={index} style={styles.imageWrapper}>
+              <Image source={{ uri: image }} style={styles.image} />
+              <TouchableOpacity
+                style={styles.deleteIcon}
+                onPress={() => deleteImage(index)}
+              >
+                <MaterialCommunityIcons name="close" size={20} color="#fff" />
+              </TouchableOpacity>
+            </View>
           ))}
         </ScrollView>
       </View>
@@ -109,12 +128,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 20,
   },
-  profileIcon: {
-    position: 'absolute',
-    top: 5,
-    left: 5,
-    zIndex: 1, // Ensure the icon is above other elements
-  },
   fieldContainer: {
     marginBottom: 20,
   },
@@ -125,12 +138,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   input: {
+    flex: 1, // Take up remaining space
     backgroundColor: '#1E2A3A',
     color: '#fff',
     borderRadius: 8,
     padding: 10,
     fontSize: 16,
-    flex: 1, // Allow TextInput to grow and fill space
   },
   nonEditableInput: {
     backgroundColor: '#2A3B4C',
@@ -144,9 +157,9 @@ const styles = StyleSheet.create({
   },
   mapButton: {
     padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#2A3B4C',
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
   },
   dropdown: {
     backgroundColor: '#1E2A3A',
@@ -160,21 +173,35 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E2A3A',
     justifyContent: 'center',
     alignItems: 'center',
-    height: 150,
+    height: 60,
     borderRadius: 8,
   },
   imageContainer: {
     marginTop: 10,
     flexDirection: 'row',
   },
+  imageWrapper: {
+    position: 'relative',
+    marginRight: 10,
+  },
   image: {
     width: 100,
     height: 100,
     borderRadius: 8,
-    marginRight: 10,
+  },
+  deleteIcon: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    backgroundColor: '#FF0000',
+    borderRadius: 15,
+    padding: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   descriptionInput: {
-    height: 100,
+    height: 100, // Set initial height for multiline text input
     textAlignVertical: 'top', // Ensures text starts at the top
+    flexGrow: 1, // Allow the input to grow when text overflows
   },
 });

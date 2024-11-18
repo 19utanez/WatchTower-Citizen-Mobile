@@ -1,4 +1,3 @@
-// app/App.js
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -11,7 +10,6 @@ import ReportScreen from './app/screens/ReportScreen';
 import MapScreen from './app/screens/MapScreen';
 import NotificationScreen from './app/screens/NotificationScreen';
 import ProfileScreen from './app/screens/ProfileScreen'; // Import ProfileScreen
-import { View, TouchableOpacity } from 'react-native';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -85,6 +83,12 @@ export default function App() {
           name="Profile"
           component={ProfileScreen} // Add ProfileScreen to the stack
           options={{ headerShown: false }}
+        />
+        {/* Add a dedicated screen for Reports, if needed */}
+        <Stack.Screen
+          name="Report"
+          component={ReportScreen}
+          options={{ headerShown: true, title: 'Report' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
