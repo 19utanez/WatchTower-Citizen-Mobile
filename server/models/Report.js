@@ -35,7 +35,7 @@ const ReportSchema = new mongoose.Schema(
         },
         priority: {
             type: String,
-            // "High", "Mid ", "Low ", "active", , 
+            // "High", "Mid ", "Low", "active", , 
          },
         rescuerId: {
             type: String,

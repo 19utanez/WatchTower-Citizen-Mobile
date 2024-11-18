@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Image 
 import { Picker } from '@react-native-picker/picker';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ReportScreen({ route, navigation }) {
   const [selectedDisaster, setSelectedDisaster] = useState('');
@@ -41,12 +42,51 @@ export default function ReportScreen({ route, navigation }) {
     setImages((prevImages) => prevImages.filter((_, i) => i !== index));
   };
 
-  // Function to handle submit action
-  const handleSubmit = () => {
-    // Handle the form submission logic here (e.g., save report to the database)
-    alert("Report submitted!");
+  const handleSubmit = async () => {
+    try {
+      // Get the logged-in user's credentials from AsyncStorage
+      const loggedInUser = await AsyncStorage.getItem('loggedInUser');
+      const { username, firstName, lastName, _id } = loggedInUser ? JSON.parse(loggedInUser) : {};
+  
+      if (!username) {
+        alert('No logged-in user found!');
+        return;
+      }
+  
+      // Prepare the report data
+      const reportDetails = {
+        reporterId: _id, // Use the user's ID from the credentials
+        reportedBy: `${firstName} ${lastName}`, // Combine first and last name
+        location: location, // Location from the location text input
+        disasterCategory: selectedDisaster, // Disaster category from the dropdown
+        disasterImages: [], // Leave as empty for now
+        disasterInfo: description, // Description from the description input
+        disasterStatus: 'unverified', // Static value for disaster status
+        priority: 'no priority', // Static value for priority
+        rescuerId: 'no rescuer yet', // Static value for rescuer ID
+        rescuedBy: 'no rescuer yet', // Static value for rescued by
+      };
+  
+      // Display the report summary in the alert
+      const reportSummary = `
+        Reporter: ${reportDetails.reportedBy}
+        Disaster Category: ${reportDetails.disasterCategory}
+        Description: ${reportDetails.disasterInfo}
+        Location: ${reportDetails.location}
+        Disaster Status: ${reportDetails.disasterStatus}
+        Priority: ${reportDetails.priority}
+        Rescuer ID: ${reportDetails.rescuerId}
+        Rescued By: ${reportDetails.rescuedBy}
+      `;
+  
+      alert(`Report submitted!\n\n${reportSummary}`);
+  
+      // You can later send this reportDetails object to your backend or API for saving.
+  
+    } catch (error) {
+      console.error('Error submitting report:', error);
+    }
   };
-
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       {/* Location */}
