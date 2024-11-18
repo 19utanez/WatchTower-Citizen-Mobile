@@ -20,19 +20,17 @@ export default function ReportScreen({ route, navigation }) {
   // Function to pick an image
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
+  
     if (!permissionResult.granted) {
       alert('Permission to access the media library is required!');
       return;
     }
-
+  
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
+      quality: 1, // Use maximum quality for the image
     });
-
+  
     if (!result.canceled) {
       setImages((prevImages) => [...prevImages, result.assets[0].uri]);
     }
@@ -85,7 +83,7 @@ export default function ReportScreen({ route, navigation }) {
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Attach Image</Text>
         <TouchableOpacity style={styles.cameraBox} onPress={pickImage}>
-          <MaterialCommunityIcons name="camera" size={40} color="#D9D9D9" />|
+          <MaterialCommunityIcons name="camera" size={40} color="#D9D9D9" />
           <Text style={styles.label}>Click here to upload Images</Text>
         </TouchableOpacity>
         {/* Display Images with Delete Button */}
