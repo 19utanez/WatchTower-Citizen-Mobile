@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SERVER_URL } from 'react-native-dotenv'; // Import SERVER_URL from .env
 
 export default function ProfileScreen({ navigation }) {
     const [citizen, setCitizen] = useState(null);
@@ -14,8 +15,8 @@ export default function ProfileScreen({ navigation }) {
             const { username } = loggedInUser ? JSON.parse(loggedInUser) : {};
 
             if (username) {
-                // API call to fetch all citizens
-                const response = await fetch('http://192.168.100.13:5000/api/auth/citizens');
+                // API call to fetch all citizens using SERVER_URL from .env
+                const response = await fetch(`${SERVER_URL}/api/auth/citizens`);
                 const data = await response.json();
 
                 // Find the citizen matching the logged-in username
