@@ -50,14 +50,14 @@ export default function MapScreen({ navigation }) {
       [
         {
           text: "Cancel", // Button to cancel
-          onPress: () => console.log("Cancel Pressed"), // Function for cancel (optional for now)
+          onPress: () => console.log("Cancel Pressed"), // Function for cancel
           style: "cancel", // Style for cancel
         },
         {
           text: "Report Now", // Button to report now
           onPress: () => {
-            // Navigate to ReportScreen and pass the selected place name
-            navigation.navigate('Report', { location: placeName });
+            // Navigate to the Report tab in the TabNavigator, passing location as a parameter
+            navigation.navigate('Reports', { location: placeName });
           },
         },
       ]

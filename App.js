@@ -39,7 +39,7 @@ function TabNavigator() {
       />
       <Tab.Screen
         name="Reports"
-        component={ReportScreen}
+        component={ReportScreen} 
         options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="file-document" color={color} size={size} />
@@ -83,12 +83,6 @@ export default function App() {
           name="Profile"
           component={ProfileScreen} // Add ProfileScreen to the stack
           options={{ headerShown: false }}
-        />
-        {/* Add a dedicated screen for Reports, if needed */}
-        <Stack.Screen
-          name="Report"
-          component={ReportScreen}
-          options={{ headerShown: true, title: 'Report' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
