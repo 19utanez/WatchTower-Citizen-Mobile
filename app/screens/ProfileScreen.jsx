@@ -1,28 +1,68 @@
-// app/screens/ProfileScreen.jsx
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 
 export default function ProfileScreen({ navigation }) {
+    const [citizen, setCitizen] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    // Function to fetch citizen data
+    const fetchCitizenData = async () => {
+        try {
+            const response = await fetch('http://192.168.100.13:5000/api/auth/citizens');
+            const data = await response.json();
+
+            // Assuming you want the first citizen in the array, or filter by specific logic
+            const loggedInCitizen = data[0]; // Replace this with actual logic to identify the user
+            setCitizen(loggedInCitizen);
+        } catch (error) {
+            console.error('Error fetching citizen data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCitizenData();
+    }, []);
+
     // Function to handle logout
     const handleLogout = () => {
-        // Navigate to the Login screen
         navigation.reset({
             index: 0,
             routes: [{ name: 'Login' }],
         });
     };
 
+    if (loading) {
+        return (
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color="#0891b2" />
+            </View>
+        );
+    }
+
     return (
         <View style={styles.container}>
             {/* Profile Title */}
             <Text style={styles.profileText}>Profile</Text>
 
-            {/* Large Photo Icon */}
-            <FontAwesome name="user-circle" size={120}   color="#D9D9D9" style={styles.photoIcon} />
+            {/* Profile Image */}
+            {citizen && citizen.profileImage ? (
+                <Image
+                    source={{ uri: citizen.profileImage }}
+                    style={styles.profileImage}
+                    resizeMode="cover"
+                />
+            ) : (
+                <View style={styles.placeholder}>
+                    <Text style={styles.placeholderText}>No Image</Text>
+                </View>
+            )}
 
-            {/* Name Text */}   
-            <Text style={styles.nameText}>Gogeta SSJ4 GT</Text>
+            {/* Name Text */}
+            <Text style={styles.nameText}>
+                {citizen ? `${citizen.firstName} ${citizen.lastName}` : 'Name not available'}
+            </Text>
 
             {/* Buttons */}
             <TouchableOpacity style={styles.button}>
@@ -52,9 +92,25 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
+        color: '#FFF',
     },
-    photoIcon: {
+    profileImage: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
         marginBottom: 20,
+    },
+    placeholder: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        backgroundColor: '#D9D9D9',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    placeholderText: {
+        color: '#FFF',
     },
     nameText: {
         fontSize: 18,

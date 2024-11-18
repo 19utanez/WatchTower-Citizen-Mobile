@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Alert, Image, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { SERVER_URL } from '@env'; // Import the environment variable
-
 import logo from '../../assets/logo.png';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ navigation }) {
   const [username, setUsername] = useState('');
@@ -13,13 +13,20 @@ export default function LoginScreen({ navigation }) {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(`${SERVER_URL}/api/auth/login`, { // Use SERVER_URL here
+      // API call for login
+      const response = await axios.post(`${SERVER_URL}/api/auth/login`, {
         username,
         password,
       });
 
       const { token } = response.data;
       console.log('Login successful:', token);
+
+      // Save credentials in AsyncStorage
+      await AsyncStorage.setItem('loggedInUser', JSON.stringify({ username, password }));
+      
+
+      // Navigate to the Main screen
       navigation.navigate('Main');
     } catch (error) {
       console.error('Login failed:', error.response?.data?.message || error.message);
@@ -66,7 +73,6 @@ export default function LoginScreen({ navigation }) {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -80,12 +86,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     marginTop: -70,
-    color: '#fff'
+    color: '#fff',
   },
   logo: {
-    width: 150, // Adjust the width as needed
-    height: 150, // Adjust the height as needed
-    marginBottom: 70, // Space between logo and inputs
+    width: 150,
+    height: 150,
+    marginBottom: 70,
   },
   input: {
     width: '100%',
@@ -96,36 +102,34 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     fontSize: 20,
     borderRadius: 20,
-    color: '#fff'
-   
+    color: '#fff',
   },
   label: {
-    alignSelf: 'flex-start',  // Align to the left of the screen
+    alignSelf: 'flex-start',
     fontSize: 25,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 5,  // Space between label and input field
-    marginLeft: 10,  // Left margin to give some space from the edge
+    marginBottom: 5,
+    marginLeft: 10,
   },
   button: {
-    width: '100%', // Full width of the container
-    height: 50,    // Adjust height
-    backgroundColor: '#D2042D', // Green background for the button
+    width: '100%',
+    height: 50,
+    backgroundColor: '#D2042D',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 25, // Rounded corners
-    marginTop: 20,   // Space above the button
+    borderRadius: 25,
+    marginTop: 20,
   },
   buttonText: {
-    fontSize: 20,  // Font size for the button text
-    color: '#fff', // White text color
+    fontSize: 20,
+    color: '#fff',
     fontWeight: 'bold',
   },
   createAccountText: {
     marginTop: 15,
     fontSize: 16,
-    color: '#fff', // Blue color for the text
-    textAlign: 'left',  // Left align
-    textDecorationLine:'underline'
+    color: '#fff',
+    textDecorationLine: 'underline',
   },
 });
