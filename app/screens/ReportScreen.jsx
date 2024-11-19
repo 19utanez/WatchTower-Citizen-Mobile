@@ -44,49 +44,55 @@ export default function ReportScreen({ route, navigation }) {
 
   const handleSubmit = async () => {
     try {
-      // Get the logged-in user's credentials from AsyncStorage
-      const loggedInUser = await AsyncStorage.getItem('loggedInUser');
-      const { username, firstName, lastName, _id } = loggedInUser ? JSON.parse(loggedInUser) : {};
-  
-      if (!username) {
-        alert('No logged-in user found!');
-        return;
-      }
-  
-      // Prepare the report data
-      const reportDetails = {
-        reporterId: _id, // Use the user's ID from the credentials
-        reportedBy: `${firstName} ${lastName}`, // Combine first and last name
-        location: location, // Location from the location text input
-        disasterCategory: selectedDisaster, // Disaster category from the dropdown
-        disasterImages: [], // Leave as empty for now
-        disasterInfo: description, // Description from the description input
-        disasterStatus: 'unverified', // Static value for disaster status
-        priority: 'no priority', // Static value for priority
-        rescuerId: 'no rescuer yet', // Static value for rescuer ID
-        rescuedBy: 'no rescuer yet', // Static value for rescued by
-      };
-  
-      // Display the report summary in the alert
-      const reportSummary = `
-        Reporter: ${reportDetails.reportedBy}
-        Disaster Category: ${reportDetails.disasterCategory}
-        Description: ${reportDetails.disasterInfo}
-        Location: ${reportDetails.location}
-        Disaster Status: ${reportDetails.disasterStatus}
-        Priority: ${reportDetails.priority}
-        Rescuer ID: ${reportDetails.rescuerId}
-        Rescued By: ${reportDetails.rescuedBy}
-      `;
-  
-      alert(`Report submitted!\n\n${reportSummary}`);
-  
-      // You can later send this reportDetails object to your backend or API for saving.
-  
+        // Get the logged-in user's credentials from AsyncStorage
+        const loggedInUser = await AsyncStorage.getItem('loggedInUser');
+        const { username, firstName, lastName, _id } = loggedInUser ? JSON.parse(loggedInUser) : {};
+
+        if (!_id) {
+            alert('Error: User ID not found!');
+            return;
+        }
+
+        if (!username) {
+            alert('No logged-in user found!');
+            return;
+        }
+
+        // Prepare the report data
+        const reportDetails = {
+            reporterId: _id, // Use the user's ID from the credentials
+            reportedBy: `${firstName} ${lastName}`, // Combine first and last name
+            location: location, // Location from the location text input
+            disasterCategory: selectedDisaster, // Disaster category from the dropdown
+            disasterImages: [], // Leave as empty for now
+            disasterInfo: description, // Description from the description input
+            disasterStatus: 'unverified', // Static value for disaster status
+            priority: 'no priority', // Static value for priority
+            rescuerId: 'no rescuer yet', // Static value for rescuer ID
+            rescuedBy: 'no rescuer yet', // Static value for rescued by
+        };
+
+        // Display the report summary in the alert
+        const reportSummary = `
+            Reporter: ${reportDetails.reportedBy}
+            Reporter ID: ${reportDetails.reporterId} // Include _id here
+            Disaster Category: ${reportDetails.disasterCategory}
+            Description: ${reportDetails.disasterInfo}
+            Location: ${reportDetails.location}
+            Disaster Status: ${reportDetails.disasterStatus}
+            Priority: ${reportDetails.priority}
+            Rescuer ID: ${reportDetails.rescuerId}
+            Rescued By: ${reportDetails.rescuedBy}
+        `;
+
+        alert(`Report submitted!\n\n${reportSummary.trim()}`);
+
+        // You can later send this reportDetails object to your backend or API for saving.
+
     } catch (error) {
-      console.error('Error submitting report:', error);
+        console.error('Error submitting report:', error);
     }
-  };
+};
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
       {/* Location */}

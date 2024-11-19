@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileScreen({ navigation }) {
@@ -20,7 +20,7 @@ export default function ProfileScreen({ navigation }) {
 
                 // Find the citizen matching the logged-in username
                 const loggedInCitizen = data.find(citizen => citizen.username === username);
-                
+
                 if (loggedInCitizen) {
                     setCitizen(loggedInCitizen);
                 } else {
@@ -46,6 +46,24 @@ export default function ProfileScreen({ navigation }) {
             index: 0,
             routes: [{ name: 'Login' }],
         });
+    };
+
+    // Function to display fetched data in an alert
+    const showCitizenDetails = () => {
+        if (citizen) {
+            const { _id, firstName, lastName, username, email, mobileNumber, address } = citizen;
+            const details = `
+                ID: ${_id}
+                Name: ${firstName} ${lastName}
+                Username: ${username}
+                Email: ${email}
+                Mobile: ${mobileNumber}
+                Address: ${address}
+            `;
+            Alert.alert('Citizen Details', details.trim());
+        } else {
+            Alert.alert('Error', 'No citizen data available.');
+        }
     };
 
     if (loading) {
@@ -80,6 +98,9 @@ export default function ProfileScreen({ navigation }) {
             </Text>
 
             {/* Buttons */}
+            <TouchableOpacity style={styles.button} onPress={showCitizenDetails}>
+                <Text style={styles.buttonText}>Show Details</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.button}>
                 <Text style={styles.buttonText}>Edit Profile</Text>
             </TouchableOpacity>
