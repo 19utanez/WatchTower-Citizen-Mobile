@@ -52,7 +52,7 @@ export default function ReportScreen({ route, navigation }) {
       }
   
       // Fetch citizens data from backend
-      const response = await fetch('http://192.168.100.13:5000/api/auth/citizens');
+      const response = await fetch('http://172.20.6.129:5000/api/auth/citizens');
       const citizens = await response.json();
   
       // Find the citizen that matches the username
@@ -80,15 +80,15 @@ export default function ReportScreen({ route, navigation }) {
       };
   
       const reportSummary = `
-        ID: ${_id}
-        Reporter: ${reportDetails.reportedBy}
-        Disaster Category: ${reportDetails.disasterCategory}
-        Description: ${reportDetails.disasterInfo}
-        Location: ${reportDetails.location}
-        Disaster Status: ${reportDetails.disasterStatus}
-        Priority: ${reportDetails.priority}
-        Rescuer ID: ${reportDetails.rescuerId}
-        Rescued By: ${reportDetails.rescuedBy}
+        reporterId: ${_id}
+        reporterBy: ${reportDetails.reportedBy}
+        disasterCategory: ${reportDetails.disasterCategory}
+        disasterInfo: ${reportDetails.disasterInfo}
+        location: ${reportDetails.location}
+        disasterStatus: ${reportDetails.disasterStatus}
+        priority: ${reportDetails.priority}
+        rescuerId: ${reportDetails.rescuerId}
+        rescuedBy: ${reportDetails.rescuedBy}
       `;
   
       Alert.alert('Report Submitted!', reportSummary.trim());
