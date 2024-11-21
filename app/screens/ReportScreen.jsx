@@ -52,7 +52,7 @@ export default function ReportScreen({ route, navigation }) {
       }
   
       // Fetch citizens data from backend
-      const response = await fetch('http://172.20.6.129:5000/api/auth/citizens');
+      const response = await fetch('http://192.168.100.13:5000/api/auth/citizens');
       const citizens = await response.json();
   
       // Find the citizen that matches the username
@@ -63,15 +63,14 @@ export default function ReportScreen({ route, navigation }) {
         return;
       }
   
-      // Extract _id, firstName, and lastName
       const { _id, firstName = 'Unknown', lastName = 'User' } = citizen;
   
       // Create the report details
       const reportDetails = {
+        reporterId: _id,
         reportedBy: `${firstName} ${lastName}`,
         location: location || 'No location provided',
         disasterCategory: selectedDisaster || 'Unspecified',
-        disasterImages: images,
         disasterInfo: description || 'No description provided',
         disasterStatus: 'unverified',
         priority: 'no priority',
@@ -79,22 +78,34 @@ export default function ReportScreen({ route, navigation }) {
         rescuedBy: 'no rescuer yet',
       };
   
-      const reportSummary = `
-        reporterId: ${_id}
-        reporterBy: ${reportDetails.reportedBy}
-        disasterCategory: ${reportDetails.disasterCategory}
-        disasterInfo: ${reportDetails.disasterInfo}
-        location: ${reportDetails.location}
-        disasterStatus: ${reportDetails.disasterStatus}
-        priority: ${reportDetails.priority}
-        rescuerId: ${reportDetails.rescuerId}
-        rescuedBy: ${reportDetails.rescuedBy}
-      `;
+      // Prepare form data for file uploads
+      const formData = new FormData();
+      Object.keys(reportDetails).forEach((key) => {
+        formData.append(key, reportDetails[key]);
+      });
   
-      Alert.alert('Report Submitted!', reportSummary.trim());
+      // Append images to formData
+      images.forEach((imageUri, index) => {
+        const filename = imageUri.split('/').pop();
+        const type = `image/${filename.split('.').pop()}`;
+        formData.append('disasterImages', { uri: imageUri, name: filename, type });
+      });
   
-      // Optionally, you can send `reportDetails` to the backend here.
+      // Send the report to the backend
+      const result = await fetch('http://192.168.100.13:5000/api/reports', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
   
+      if (!result.ok) {
+        throw new Error('Failed to submit the report');
+      }
+  
+      Alert.alert('Success', 'Report submitted successfully!');
+      navigation.goBack(); // Go back to the previous screen after submission
     } catch (error) {
       console.error('Error submitting report:', error);
       Alert.alert('Error', 'An error occurred while submitting the report.');
