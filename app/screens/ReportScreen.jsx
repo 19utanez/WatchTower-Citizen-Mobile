@@ -105,6 +105,13 @@ export default function ReportScreen({ route, navigation }) {
       }
   
       Alert.alert('Success', 'Report submitted successfully!');
+  
+      // Clear all fields
+      setSelectedDisaster('');
+      setDescription('');
+      setImages([]);
+      setLocation('');
+  
       navigation.goBack(); // Go back to the previous screen after submission
     } catch (error) {
       console.error('Error submitting report:', error);
