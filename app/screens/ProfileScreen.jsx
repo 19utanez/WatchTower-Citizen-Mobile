@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { launchImageLibrary } from 'react-native-image-picker';
+import Icon from 'react-native-vector-icons/Ionicons'; 
 
 export default function ProfileScreen({ navigation }) {
     const [citizen, setCitizen] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Fetch citizen data
     const fetchCitizenData = async () => {
         try {
             const loggedInUser = await AsyncStorage.getItem('loggedInUser');
@@ -35,7 +35,6 @@ export default function ProfileScreen({ navigation }) {
         fetchCitizenData();
     }, []);
 
-    // Handle image picker
     const handleImagePicker = () => {
         launchImageLibrary({ mediaType: 'photo', quality: 1 }, async (response) => {
             if (response.didCancel) {
@@ -59,7 +58,7 @@ export default function ProfileScreen({ navigation }) {
 
                     if (updateResponse.ok) {
                         const updatedCitizen = await updateResponse.json();
-                        setCitizen(updatedCitizen); // Update local state with new profile image
+                        setCitizen(updatedCitizen);
                         Alert.alert('Success', 'Profile image updated successfully');
                     } else {
                         Alert.alert('Error', 'Failed to update profile image');
@@ -69,7 +68,6 @@ export default function ProfileScreen({ navigation }) {
         });
     };
 
-    // Convert image URI to base64
     const uriToBase64 = (uri) => {
         return new Promise((resolve, reject) => {
             fetch(uri)
@@ -84,21 +82,8 @@ export default function ProfileScreen({ navigation }) {
         });
     };
 
-    // Function to show details in an alert
-    const showDetails = () => {
-        if (citizen) {
-            Alert.alert(
-                'Details',
-                `Name: ${citizen.firstName} ${citizen.lastName}\nUsername: ${citizen.username}\nEmail: ${citizen.email}\nMobile: ${citizen.mobileNumber}\nAddress: ${citizen.address}`
-            );
-        } else {
-            Alert.alert('Error', 'No details available to show.');
-        }
-    };
-
-    // Function to handle logout
     const handleLogout = () => {
-        AsyncStorage.clear(); // Clear AsyncStorage on logout
+        AsyncStorage.clear();
         navigation.reset({
             index: 0,
             routes: [{ name: 'Login' }],
@@ -130,32 +115,80 @@ export default function ProfileScreen({ navigation }) {
                     </View>
                 )}
                 <TouchableOpacity style={styles.editButton} onPress={handleImagePicker}>
-                    <Text style={styles.editButtonText}>Edit</Text>
+                    <Icon name="camera" size={30} color="#FFF" />
+                    <Text style={styles.editButtonText}>Edit Photo</Text>
                 </TouchableOpacity>
             </View>
 
-            <Text style={styles.nameText}>
-                {citizen ? `${citizen.firstName} ${citizen.lastName}` : 'Name not available'}
-            </Text>
+            <View style={styles.infoContainer}>
+                <View style={styles.infoHeader}>
+                    <Text style={styles.infoTitle}>Personal Info</Text>
+                    <TouchableOpacity style={styles.editInfoButton}>
+                        <Icon name="create" size={20} color="#FFF" />  {/* Edit Icon */}
+                        <Text style={styles.editButtonText}> Edit Info</Text>  {/* Edit Info Text */}
+                    </TouchableOpacity>
+                </View>
 
-            <TouchableOpacity style={styles.button} onPress={showDetails}>
-                <Text style={styles.buttonText}>Show Details</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                style={styles.button}
-                onPress={() => navigation.navigate('EditProfileForm', { citizen })}
-            >
-                <Text style={styles.buttonText}>Edit Profile</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Change Password</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Notification Settings</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleLogout}>
-                <Text style={styles.buttonText}>Logout</Text>
-            </TouchableOpacity>
+                <View style={styles.infoTextRow}>
+                    <View style={styles.iconLabelContainer}>
+                        <Icon name="person" size={20} color="#FFF" />
+                        <Text style={styles.infoLabel}>First Name:</Text>
+                    </View>
+                    <Text style={styles.infoText}>{citizen?.firstName || 'N/A'}</Text>
+                </View>
+
+                <View style={styles.infoTextRow}>
+                    <View style={styles.iconLabelContainer}>
+                        <Icon name="person" size={20} color="#FFF" />
+                        <Text style={styles.infoLabel}>Last Name:</Text>
+                    </View>
+                    <Text style={styles.infoText}>{citizen?.lastName || 'N/A'}</Text>
+                </View>
+
+                <View style={styles.infoTextRow}>
+                    <View style={styles.iconLabelContainer}>
+                        <Icon name="person-outline" size={20} color="#FFF" />
+                        <Text style={styles.infoLabel}>Username:</Text>
+                    </View>
+                    <Text style={styles.infoText}>{citizen?.username || 'N/A'}</Text>
+                </View>
+
+                <View style={styles.infoTextRow}>
+                    <View style={styles.iconLabelContainer}>
+                        <Icon name="mail" size={20} color="#FFF" />
+                        <Text style={styles.infoLabel}>Email:</Text>
+                    </View>
+                    <Text style={styles.infoText}>{citizen?.email || 'N/A'}</Text>
+                </View>
+
+                <View style={styles.infoTextRow}>
+                    <View style={styles.iconLabelContainer}>
+                        <Icon name="call" size={20} color="#FFF" />
+                        <Text style={styles.infoLabel}>Mobile No:</Text>
+                    </View>
+                    <Text style={styles.infoText}>{citizen?.mobileNumber || 'N/A'}</Text>
+                </View>
+
+                <View style={styles.infoTextRow}>
+                    <View style={styles.iconLabelContainer}>
+                        <Icon name="location" size={20} color="#FFF" />
+                        <Text style={styles.infoLabel}>Address:</Text>
+                    </View>
+                    <Text style={styles.infoText}>{citizen?.address || 'N/A'}</Text>
+                </View>
+            </View>
+
+            <View style={styles.buttonContainer}>   
+                <TouchableOpacity style={styles.button}>
+                    <Text style={styles.buttonText}>Change Password</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button}>
+                    <Text style={styles.buttonText}>Notification Settings</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                    <Text style={styles.buttonText}>Logout</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
@@ -164,8 +197,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
-        paddingTop: 50,
         backgroundColor: '#071025',
+        paddingTop: 20,
     },
     profileText: {
         fontSize: 24,
@@ -174,8 +207,8 @@ const styles = StyleSheet.create({
         color: '#FFF',
     },
     profileImageContainer: {
-        position: 'relative',
-        marginBottom: 20,
+        alignItems: 'center',
+        marginBottom: 30,
     },
     profileImage: {
         width: 120,
@@ -194,34 +227,77 @@ const styles = StyleSheet.create({
         color: '#FFF',
     },
     editButton: {
-        position: 'absolute',
-        bottom: 0,
-        right: 0,
+        flexDirection: 'row', // Align items side by side
+        alignItems: 'center', // Vertically center the items
+        marginTop: 10,
         backgroundColor: '#0891b2',
-        borderRadius: 50,
-        padding: 10,
+        padding: 8,
+        borderRadius: 20,
     },
     editButtonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-    },
-    nameText: {
-        fontSize: 18,
-        fontWeight: '600',
         color: '#FFF',
+        fontWeight: 'bold',
+        marginLeft: 8, // Adjust space between icon and text
+    },
+    infoContainer: {
+        width: '90%',
+        backgroundColor: '#1A202C',
+        padding: 20,
+        borderRadius: 10,
         marginBottom: 30,
     },
-    button: {
-        width: '90%',
-        backgroundColor: '#0891b2',
-        padding: 15,
-        borderRadius: 8,
+    infoHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 15,
     },
+    infoTitle: {
+        color: '#FFF',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    editInfoButton: {
+        flexDirection: 'row', // Align items in a row (side by side)
+        alignItems: 'center',  // Vertically center the items
+        marginTop: 10,
+        backgroundColor: '#0891b2',
+        padding: 8,
+        borderRadius: 20,
+    },
+    infoTextRow: {
+        flexDirection: 'row',
+        marginBottom: 10,
+        alignItems: 'center',
+    },
+    iconLabelContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    infoLabel: {
+        color: '#FFF',
+        fontSize: 14,
+        marginLeft: 10,
+    },
+    infoText: {
+        color: '#FFF',
+        textAlign: 'right',
+        flex: 2,
+    },
+    buttonContainer: {
+        width: '90%',
+        marginTop: 20,
+    },
+    button: {
+        backgroundColor: '#0891b2',
+        padding: 12,
+        marginBottom: 10,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
     buttonText: {
-        color: '#fff',
-        fontSize: 16,
+        color: '#FFF',
         fontWeight: 'bold',
     },
 });
