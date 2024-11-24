@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { 
+    View, 
+    Text, 
+    StyleSheet, 
+    TouchableOpacity, 
+    Image, 
+    ActivityIndicator, 
+    Alert, 
+    ScrollView 
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons'; 
@@ -11,21 +20,24 @@ export default function ProfileScreen({ navigation }) {
     const fetchCitizenData = async () => {
         try {
             const loggedInUser = await AsyncStorage.getItem('loggedInUser');
-            const { username } = loggedInUser ? JSON.parse(loggedInUser) : {};
-            if (username) {
+            if (loggedInUser) {
+                const { username } = JSON.parse(loggedInUser);
                 const response = await fetch('http://192.168.100.13:5000/api/auth/citizens');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch citizen data');
+                }
                 const data = await response.json();
                 const loggedInCitizen = data.find(citizen => citizen.username === username);
                 if (loggedInCitizen) {
                     setCitizen(loggedInCitizen);
                 } else {
-                    console.error('Citizen not found');
+                    console.error('Citizen not found in database');
                 }
             } else {
-                console.error('No username found in AsyncStorage');
+                console.error('No logged-in user found');
             }
         } catch (error) {
-            console.error('Error fetching citizen data:', error);
+            console.error('Error fetching citizen data:', error.message);
         } finally {
             setLoading(false);
         }
@@ -41,28 +53,35 @@ export default function ProfileScreen({ navigation }) {
                 console.log('User cancelled image picker');
             } else if (response.errorMessage) {
                 console.error('ImagePicker Error:', response.errorMessage);
-            } else {
+            } else if (response.assets && response.assets[0]) {
                 const newImageUri = response.assets[0].uri;
                 const base64Image = await uriToBase64(newImageUri);
-                const loggedInUser = await AsyncStorage.getItem('loggedInUser');
-                const { username } = loggedInUser ? JSON.parse(loggedInUser) : {};
 
-                if (username) {
-                    const updateResponse = await fetch('http://192.168.100.13:5000/api/auth/updateProfileImage', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ username, profileImage: base64Image }),
-                    });
+                try {
+                    const loggedInUser = await AsyncStorage.getItem('loggedInUser');
+                    if (loggedInUser) {
+                        const { username } = JSON.parse(loggedInUser);
+                        const updateResponse = await fetch(
+                            'http://192.168.100.13:5000/api/auth/updateProfileImage',
+                            {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ username, profileImage: base64Image }),
+                            }
+                        );
 
-                    if (updateResponse.ok) {
-                        const updatedCitizen = await updateResponse.json();
-                        setCitizen(updatedCitizen);
-                        Alert.alert('Success', 'Profile image updated successfully');
-                    } else {
-                        Alert.alert('Error', 'Failed to update profile image');
+                        if (updateResponse.ok) {
+                            const updatedCitizen = await updateResponse.json();
+                            setCitizen(updatedCitizen);
+                            Alert.alert('Success', 'Profile image updated successfully');
+                        } else {
+                            Alert.alert('Error', 'Failed to update profile image');
+                        }
                     }
+                } catch (error) {
+                    console.error('Error updating profile image:', error.message);
                 }
             }
         });
@@ -83,10 +102,11 @@ export default function ProfileScreen({ navigation }) {
     };
 
     const handleLogout = () => {
-        AsyncStorage.clear();
-        navigation.reset({
-            index: 0,
-            routes: [{ name: 'Login' }],
+        AsyncStorage.clear().then(() => {
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+            });
         });
     };
 
@@ -104,7 +124,7 @@ export default function ProfileScreen({ navigation }) {
                 <Text style={styles.profileText}>Profile</Text>
 
                 <View style={styles.profileImageContainer}>
-                    {citizen && citizen.profileImage ? (
+                    {citizen?.profileImage ? (
                         <Image
                             source={{ uri: citizen.profileImage }}
                             style={styles.profileImage}
@@ -125,58 +145,17 @@ export default function ProfileScreen({ navigation }) {
                     <View style={styles.infoHeader}>
                         <Text style={styles.infoTitle}>Personal Info</Text>
                         <TouchableOpacity style={styles.editInfoButton}>
-                            <Icon name="create" size={20} color="#FFF" />  {/* Edit Icon */}
-                            <Text style={styles.editButtonText}> Edit Info</Text>  {/* Edit Info Text */}
+                            <Icon name="create" size={20} color="#FFF" />
+                            <Text style={styles.editButtonText}> Edit Info</Text>
                         </TouchableOpacity>
                     </View>
 
-                    <View style={styles.infoTextRow}>
-                        <View style={styles.iconLabelContainer}>
-                            <Icon name="person" size={20} color="#FFF" />
-                            <Text style={styles.infoLabel}>First Name:</Text>
-                        </View>
-                        <Text style={styles.infoText}>{citizen?.firstName || 'N/A'}</Text>
-                    </View>
-
-                    <View style={styles.infoTextRow}>
-                        <View style={styles.iconLabelContainer}>
-                            <Icon name="person" size={20} color="#FFF" />
-                            <Text style={styles.infoLabel}>Last Name:</Text>
-                        </View>
-                        <Text style={styles.infoText}>{citizen?.lastName || 'N/A'}</Text>
-                    </View>
-
-                    <View style={styles.infoTextRow}>
-                        <View style={styles.iconLabelContainer}>
-                            <Icon name="person-outline" size={20} color="#FFF" />
-                            <Text style={styles.infoLabel}>Username:</Text>
-                        </View>
-                        <Text style={styles.infoText}>{citizen?.username || 'N/A'}</Text>
-                    </View>
-
-                    <View style={styles.infoTextRow}>
-                        <View style={styles.iconLabelContainer}>
-                            <Icon name="mail" size={20} color="#FFF" />
-                            <Text style={styles.infoLabel}>Email:</Text>
-                        </View>
-                        <Text style={styles.infoText}>{citizen?.email || 'N/A'}</Text>
-                    </View>
-
-                    <View style={styles.infoTextRow}>
-                        <View style={styles.iconLabelContainer}>
-                            <Icon name="call" size={20} color="#FFF" />
-                            <Text style={styles.infoLabel}>Mobile No:</Text>
-                        </View>
-                        <Text style={styles.infoText}>{citizen?.mobileNumber || 'N/A'}</Text>
-                    </View>
-
-                    <View style={styles.infoTextRow}>
-                        <View style={styles.iconLabelContainer}>
-                            <Icon name="location" size={20} color="#FFF" />
-                            <Text style={styles.infoLabel}>Address:</Text>
-                        </View>
-                        <Text style={styles.infoText}>{citizen?.address || 'N/A'}</Text>
-                    </View>
+                    {renderInfoRow('person', 'First Name:', citizen?.firstName || 'N/A')}
+                    {renderInfoRow('person', 'Last Name:', citizen?.lastName || 'N/A')}
+                    {renderInfoRow('person-outline', 'Username:', citizen?.username || 'N/A')}
+                    {renderInfoRow('mail', 'Email:', citizen?.email || 'N/A')}
+                    {renderInfoRow('call', 'Mobile No:', citizen?.mobileNumber || 'N/A')}
+                    {renderInfoRow('location', 'Address:', citizen?.address || 'N/A')}
                 </View>
 
                 <View style={styles.buttonContainer}>
@@ -194,6 +173,16 @@ export default function ProfileScreen({ navigation }) {
         </ScrollView>
     );
 }
+
+const renderInfoRow = (icon, label, value) => (
+    <View style={styles.infoTextRow}>
+        <View style={styles.iconLabelContainer}>
+            <Icon name={icon} size={20} color="#FFF" />
+            <Text style={styles.infoLabel}>{label}</Text>
+        </View>
+        <Text style={styles.infoText}>{value}</Text>
+    </View>
+);
 
 const styles = StyleSheet.create({
     container: {

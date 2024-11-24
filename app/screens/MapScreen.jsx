@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Button, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, Button, Alert } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { TextInput, Button as PaperButton } from 'react-native-paper'; // Importing from react-native-paper
+import { TextInput } from 'react-native-paper'; // Importing from react-native-paper
 import axios from 'axios';
 
 export default function MapScreen({ navigation }) {
@@ -74,7 +74,26 @@ export default function MapScreen({ navigation }) {
           longitudeDelta: 0.0421,
         });
         setMarker({ latitude: lat, longitude: lng });
-        Alert.alert("Location Found", `You searched for: ${placeName}`);
+        
+        // Show the dialog with options after a successful search
+        Alert.alert(
+          "Location Found",
+          `You searched for: ${placeName}`,
+          [
+            {
+              text: "Cancel",
+              onPress: () => console.log("Cancel Pressed"),
+              style: "cancel",
+            },
+            {
+              text: "Report Now",
+              onPress: () => {
+                // Navigate to the Report screen with the location data
+                navigation.navigate('Reports', { location: placeName });
+              },
+            },
+          ]
+        );
       } else {
         Alert.alert("Location Not Found", "Please try again with a different query.");
       }
