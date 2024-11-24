@@ -37,21 +37,17 @@ export default function ProfileScreen({ navigation }) {
 
     // Handle image picker
     const handleImagePicker = () => {
-        console.log('Edit button pressed');
         launchImageLibrary({ mediaType: 'photo', quality: 1 }, async (response) => {
-            console.log(response);
             if (response.didCancel) {
                 console.log('User cancelled image picker');
             } else if (response.errorMessage) {
                 console.error('ImagePicker Error:', response.errorMessage);
             } else {
                 const newImageUri = response.assets[0].uri;
-                console.log('Image URI:', newImageUri);
                 const base64Image = await uriToBase64(newImageUri);
-                // Assume you send the base64 image to your server for updating the profile
                 const loggedInUser = await AsyncStorage.getItem('loggedInUser');
                 const { username } = loggedInUser ? JSON.parse(loggedInUser) : {};
-    
+
                 if (username) {
                     const updateResponse = await fetch('http://192.168.100.13:5000/api/auth/updateProfileImage', {
                         method: 'POST',
@@ -60,11 +56,11 @@ export default function ProfileScreen({ navigation }) {
                         },
                         body: JSON.stringify({ username, profileImage: base64Image }),
                     });
-    
+
                     if (updateResponse.ok) {
                         const updatedCitizen = await updateResponse.json();
                         setCitizen(updatedCitizen); // Update local state with new profile image
-                        console.log('Profile image updated');
+                        Alert.alert('Success', 'Profile image updated successfully');
                     } else {
                         Alert.alert('Error', 'Failed to update profile image');
                     }
@@ -72,7 +68,7 @@ export default function ProfileScreen({ navigation }) {
             }
         });
     };
-    
+
     // Convert image URI to base64
     const uriToBase64 = (uri) => {
         return new Promise((resolve, reject) => {
@@ -80,7 +76,7 @@ export default function ProfileScreen({ navigation }) {
                 .then(response => response.blob())
                 .then(blob => {
                     const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result.split(',')[1]); // Get base64 string
+                    reader.onloadend = () => resolve(reader.result.split(',')[1]);
                     reader.onerror = reject;
                     reader.readAsDataURL(blob);
                 })
@@ -88,8 +84,21 @@ export default function ProfileScreen({ navigation }) {
         });
     };
 
+    // Function to show details in an alert
+    const showDetails = () => {
+        if (citizen) {
+            Alert.alert(
+                'Details',
+                `Name: ${citizen.firstName} ${citizen.lastName}\nUsername: ${citizen.username}\nEmail: ${citizen.email}\nMobile: ${citizen.mobileNumber}\nAddress: ${citizen.address}`
+            );
+        } else {
+            Alert.alert('Error', 'No details available to show.');
+        }
+    };
+
     // Function to handle logout
     const handleLogout = () => {
+        AsyncStorage.clear(); // Clear AsyncStorage on logout
         navigation.reset({
             index: 0,
             routes: [{ name: 'Login' }],
@@ -106,10 +115,8 @@ export default function ProfileScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            {/* Profile Title */}
             <Text style={styles.profileText}>Profile</Text>
 
-            {/* Profile Image and Edit Button */}
             <View style={styles.profileImageContainer}>
                 {citizen && citizen.profileImage ? (
                     <Image
@@ -127,16 +134,17 @@ export default function ProfileScreen({ navigation }) {
                 </TouchableOpacity>
             </View>
 
-            {/* Name Text */}
             <Text style={styles.nameText}>
                 {citizen ? `${citizen.firstName} ${citizen.lastName}` : 'Name not available'}
             </Text>
 
-            {/* Other buttons */}
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={showDetails}>
                 <Text style={styles.buttonText}>Show Details</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity
+                style={styles.button}
+                onPress={() => navigation.navigate('EditProfileForm', { citizen })}
+            >
                 <Text style={styles.buttonText}>Edit Profile</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}>

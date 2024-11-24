@@ -36,15 +36,15 @@ export const loginUser = async (req, res) => {
 // Register a new citizen
 export const registerCitizen = async (req, res) => {
   try {
-    const { firstName, lastName, username, password, email, mobileNumber, address, profileImage } = req.body;
+    const { firstName, lastName, username, password,  mobileNumber, address, profileImage } = req.body;
 
     const newCitizen = new Citizen({
       firstName,
       lastName,
       username,
       password,
-      email: email || "no data yet",
-      mobileNumber: mobileNumber || "no data yet",
+      email: "no data yet",
+      mobileNumber,
       address: "no data yet",
       profileImage: "no data yet",
       reports: [],
@@ -63,3 +63,4 @@ export const registerCitizen = async (req, res) => {
     res.status(500).json({ message: 'Error creating citizen' });
   }
 };
+

@@ -138,8 +138,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   backToLoginText: {
-    marginTop: 15,
+    marginTop: 40,
     fontSize: 16,
     color: '#fff',
+    textDecorationLine: 'underline',
   },
+
 });
