@@ -1,32 +1,28 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Button, TouchableOpacity, Alert } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { MaterialCommunityIcons } from 'react-native-vector-icons';
+import { TextInput, Button as PaperButton } from 'react-native-paper'; // Importing from react-native-paper
 import axios from 'axios';
 
 export default function MapScreen({ navigation }) {
-  // Initial center location, similar to the center in the React code
   const initialCenter = {
-    latitude: 14.601972841610728, // Adjust to desired latitude
-    longitude: 121.03527772039602, // Adjust to desired longitude
-    latitudeDelta: 0.0922,  // Initial zoom level
-    longitudeDelta: 0.0421, // Initial zoom level
+    latitude: 14.601972841610728,
+    longitude: 121.03527772039602,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
   };
 
-  // State for map region and marker location
   const [region, setRegion] = useState(initialCenter);
   const [marker, setMarker] = useState(initialCenter);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Function to get place name from latitude and longitude
   const getPlaceName = async (latitude, longitude) => {
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY; // Your API key from .env file
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
     
     try {
       const response = await axios.get(url);
-      console.log("Geocoding API response:", response.data); // Log the response to inspect it
-      
-      // Check if we have results and extract the formatted address
       const address = response.data.results && response.data.results[0]?.formatted_address;
       return address || 'No address found';
     } catch (error) {
@@ -40,23 +36,19 @@ export default function MapScreen({ navigation }) {
     const { latitude, longitude } = event.nativeEvent.coordinate;
     setMarker({ latitude, longitude });
   
-    // Get the place name based on the clicked coordinates
     const placeName = await getPlaceName(latitude, longitude);
-  
-    // Show notification with the place name and options
     Alert.alert(
       "Marker Moved",
       `You placed the marker at:\n${placeName}`,
       [
         {
-          text: "Cancel", // Button to cancel
-          onPress: () => console.log("Cancel Pressed"), // Function for cancel
-          style: "cancel", // Style for cancel
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
         },
         {
-          text: "Report Now", // Button to report now
+          text: "Report Now",
           onPress: () => {
-            // Navigate to the Report tab in the TabNavigator, passing location as a parameter
             navigation.navigate('Reports', { location: placeName });
           },
         },
@@ -64,7 +56,34 @@ export default function MapScreen({ navigation }) {
     );
   };
 
-  // Zoom in functionality
+  // Function to search for a location and update the map region
+  const handleSearch = async () => {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${searchQuery}&key=${apiKey}`;
+    
+    try {
+      const response = await axios.get(url);
+      const result = response.data.results[0];
+      if (result) {
+        const { lat, lng } = result.geometry.location;
+        const placeName = result.formatted_address;
+        setRegion({
+          latitude: lat,
+          longitude: lng,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        });
+        setMarker({ latitude: lat, longitude: lng });
+        Alert.alert("Location Found", `You searched for: ${placeName}`);
+      } else {
+        Alert.alert("Location Not Found", "Please try again with a different query.");
+      }
+    } catch (error) {
+      console.error('Error searching location:', error);
+      Alert.alert('Search Error', 'Could not search for the location.');
+    }
+  };
+
   const zoomIn = () => {
     setRegion((prevRegion) => ({
       ...prevRegion,
@@ -73,7 +92,6 @@ export default function MapScreen({ navigation }) {
     }));
   };
 
-  // Zoom out functionality
   const zoomOut = () => {
     setRegion((prevRegion) => ({
       ...prevRegion,
@@ -84,14 +102,21 @@ export default function MapScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-
+      {/* Search Bar */}
+      <TextInput
+        label="Search for a location"
+        value={searchQuery}
+        onChangeText={(text) => setSearchQuery(text)}
+        style={styles.searchBar}
+        onSubmitEditing={handleSearch} // Trigger search when hitting Enter
+      />
 
       <MapView
         style={styles.map}
-        region={region}  // Center map to region state
-        onPress={handleMapPress}  // Handle map clicks
+        region={region}
+        onPress={handleMapPress}
       >
-        <Marker coordinate={marker} />  {/* Display marker at the selected location */}
+        <Marker coordinate={marker} />
       </MapView>
 
       <View style={styles.buttonContainer}>
@@ -117,11 +142,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     width: '100%',
   },
-  profileIcon: {
-    position: 'absolute',
-    top: 5,
-    left: 5,
-    zIndex: 1, // Ensure the icon is above other elements
+  searchBar: {
+    marginTop: 10,
+    marginHorizontal: 20,
+    backgroundColor: '#fff',
+    paddingHorizontal: 10,
   },
 });
-  
