@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons'; 
@@ -99,97 +99,99 @@ export default function ProfileScreen({ navigation }) {
     }
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.profileText}>Profile</Text>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.container}>
+                <Text style={styles.profileText}>Profile</Text>
 
-            <View style={styles.profileImageContainer}>
-                {citizen && citizen.profileImage ? (
-                    <Image
-                        source={{ uri: citizen.profileImage }}
-                        style={styles.profileImage}
-                        resizeMode="cover"
-                    />
-                ) : (
-                    <View style={styles.placeholder}>
-                        <Text style={styles.placeholderText}>No Image</Text>
-                    </View>
-                )}
-                <TouchableOpacity style={styles.editButton} onPress={handleImagePicker}>
-                    <Icon name="camera" size={30} color="#FFF" />
-                    <Text style={styles.editButtonText}>Edit Photo</Text>
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.infoContainer}>
-                <View style={styles.infoHeader}>
-                    <Text style={styles.infoTitle}>Personal Info</Text>
-                    <TouchableOpacity style={styles.editInfoButton}>
-                        <Icon name="create" size={20} color="#FFF" />  {/* Edit Icon */}
-                        <Text style={styles.editButtonText}> Edit Info</Text>  {/* Edit Info Text */}
+                <View style={styles.profileImageContainer}>
+                    {citizen && citizen.profileImage ? (
+                        <Image
+                            source={{ uri: citizen.profileImage }}
+                            style={styles.profileImage}
+                            resizeMode="cover"
+                        />
+                    ) : (
+                        <View style={styles.placeholder}>
+                            <Text style={styles.placeholderText}>No Image</Text>
+                        </View>
+                    )}
+                    <TouchableOpacity style={styles.editButton} onPress={handleImagePicker}>
+                        <Icon name="camera" size={30} color="#FFF" />
+                        <Text style={styles.editButtonText}>Edit Photo</Text>
                     </TouchableOpacity>
                 </View>
 
-                <View style={styles.infoTextRow}>
-                    <View style={styles.iconLabelContainer}>
-                        <Icon name="person" size={20} color="#FFF" />
-                        <Text style={styles.infoLabel}>First Name:</Text>
+                <View style={styles.infoContainer}>
+                    <View style={styles.infoHeader}>
+                        <Text style={styles.infoTitle}>Personal Info</Text>
+                        <TouchableOpacity style={styles.editInfoButton}>
+                            <Icon name="create" size={20} color="#FFF" />  {/* Edit Icon */}
+                            <Text style={styles.editButtonText}> Edit Info</Text>  {/* Edit Info Text */}
+                        </TouchableOpacity>
                     </View>
-                    <Text style={styles.infoText}>{citizen?.firstName || 'N/A'}</Text>
+
+                    <View style={styles.infoTextRow}>
+                        <View style={styles.iconLabelContainer}>
+                            <Icon name="person" size={20} color="#FFF" />
+                            <Text style={styles.infoLabel}>First Name:</Text>
+                        </View>
+                        <Text style={styles.infoText}>{citizen?.firstName || 'N/A'}</Text>
+                    </View>
+
+                    <View style={styles.infoTextRow}>
+                        <View style={styles.iconLabelContainer}>
+                            <Icon name="person" size={20} color="#FFF" />
+                            <Text style={styles.infoLabel}>Last Name:</Text>
+                        </View>
+                        <Text style={styles.infoText}>{citizen?.lastName || 'N/A'}</Text>
+                    </View>
+
+                    <View style={styles.infoTextRow}>
+                        <View style={styles.iconLabelContainer}>
+                            <Icon name="person-outline" size={20} color="#FFF" />
+                            <Text style={styles.infoLabel}>Username:</Text>
+                        </View>
+                        <Text style={styles.infoText}>{citizen?.username || 'N/A'}</Text>
+                    </View>
+
+                    <View style={styles.infoTextRow}>
+                        <View style={styles.iconLabelContainer}>
+                            <Icon name="mail" size={20} color="#FFF" />
+                            <Text style={styles.infoLabel}>Email:</Text>
+                        </View>
+                        <Text style={styles.infoText}>{citizen?.email || 'N/A'}</Text>
+                    </View>
+
+                    <View style={styles.infoTextRow}>
+                        <View style={styles.iconLabelContainer}>
+                            <Icon name="call" size={20} color="#FFF" />
+                            <Text style={styles.infoLabel}>Mobile No:</Text>
+                        </View>
+                        <Text style={styles.infoText}>{citizen?.mobileNumber || 'N/A'}</Text>
+                    </View>
+
+                    <View style={styles.infoTextRow}>
+                        <View style={styles.iconLabelContainer}>
+                            <Icon name="location" size={20} color="#FFF" />
+                            <Text style={styles.infoLabel}>Address:</Text>
+                        </View>
+                        <Text style={styles.infoText}>{citizen?.address || 'N/A'}</Text>
+                    </View>
                 </View>
 
-                <View style={styles.infoTextRow}>
-                    <View style={styles.iconLabelContainer}>
-                        <Icon name="person" size={20} color="#FFF" />
-                        <Text style={styles.infoLabel}>Last Name:</Text>
-                    </View>
-                    <Text style={styles.infoText}>{citizen?.lastName || 'N/A'}</Text>
-                </View>
-
-                <View style={styles.infoTextRow}>
-                    <View style={styles.iconLabelContainer}>
-                        <Icon name="person-outline" size={20} color="#FFF" />
-                        <Text style={styles.infoLabel}>Username:</Text>
-                    </View>
-                    <Text style={styles.infoText}>{citizen?.username || 'N/A'}</Text>
-                </View>
-
-                <View style={styles.infoTextRow}>
-                    <View style={styles.iconLabelContainer}>
-                        <Icon name="mail" size={20} color="#FFF" />
-                        <Text style={styles.infoLabel}>Email:</Text>
-                    </View>
-                    <Text style={styles.infoText}>{citizen?.email || 'N/A'}</Text>
-                </View>
-
-                <View style={styles.infoTextRow}>
-                    <View style={styles.iconLabelContainer}>
-                        <Icon name="call" size={20} color="#FFF" />
-                        <Text style={styles.infoLabel}>Mobile No:</Text>
-                    </View>
-                    <Text style={styles.infoText}>{citizen?.mobileNumber || 'N/A'}</Text>
-                </View>
-
-                <View style={styles.infoTextRow}>
-                    <View style={styles.iconLabelContainer}>
-                        <Icon name="location" size={20} color="#FFF" />
-                        <Text style={styles.infoLabel}>Address:</Text>
-                    </View>
-                    <Text style={styles.infoText}>{citizen?.address || 'N/A'}</Text>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.button}>
+                        <Text style={styles.buttonText}>Change Password</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button}>
+                        <Text style={styles.buttonText}>Notification Settings</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={handleLogout}>
+                        <Text style={styles.buttonText}>Logout</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
-
-            <View style={styles.buttonContainer}>   
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Change Password</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button}>
-                    <Text style={styles.buttonText}>Notification Settings</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={handleLogout}>
-                    <Text style={styles.buttonText}>Logout</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+        </ScrollView>
     );
 }
 
