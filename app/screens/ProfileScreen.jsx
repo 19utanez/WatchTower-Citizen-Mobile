@@ -1,26 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 export default function ProfileScreen({ navigation }) {
     const [citizen, setCitizen] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Function to fetch citizen data based on the logged-in username
+    // Fetch citizen data
     const fetchCitizenData = async () => {
         try {
-            // Get the username from AsyncStorage
             const loggedInUser = await AsyncStorage.getItem('loggedInUser');
             const { username } = loggedInUser ? JSON.parse(loggedInUser) : {};
-
             if (username) {
-                // API call to fetch all citizens
                 const response = await fetch('http://192.168.100.13:5000/api/auth/citizens');
                 const data = await response.json();
-
-                // Find the citizen matching the logged-in username
                 const loggedInCitizen = data.find(citizen => citizen.username === username);
-
                 if (loggedInCitizen) {
                     setCitizen(loggedInCitizen);
                 } else {
@@ -40,30 +35,65 @@ export default function ProfileScreen({ navigation }) {
         fetchCitizenData();
     }, []);
 
+    // Handle image picker
+    const handleImagePicker = () => {
+        console.log('Edit button pressed');
+        launchImageLibrary({ mediaType: 'photo', quality: 1 }, async (response) => {
+            console.log(response);
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.errorMessage) {
+                console.error('ImagePicker Error:', response.errorMessage);
+            } else {
+                const newImageUri = response.assets[0].uri;
+                console.log('Image URI:', newImageUri);
+                const base64Image = await uriToBase64(newImageUri);
+                // Assume you send the base64 image to your server for updating the profile
+                const loggedInUser = await AsyncStorage.getItem('loggedInUser');
+                const { username } = loggedInUser ? JSON.parse(loggedInUser) : {};
+    
+                if (username) {
+                    const updateResponse = await fetch('http://192.168.100.13:5000/api/auth/updateProfileImage', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username, profileImage: base64Image }),
+                    });
+    
+                    if (updateResponse.ok) {
+                        const updatedCitizen = await updateResponse.json();
+                        setCitizen(updatedCitizen); // Update local state with new profile image
+                        console.log('Profile image updated');
+                    } else {
+                        Alert.alert('Error', 'Failed to update profile image');
+                    }
+                }
+            }
+        });
+    };
+    
+    // Convert image URI to base64
+    const uriToBase64 = (uri) => {
+        return new Promise((resolve, reject) => {
+            fetch(uri)
+                .then(response => response.blob())
+                .then(blob => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result.split(',')[1]); // Get base64 string
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                })
+                .catch(reject);
+        });
+    };
+
     // Function to handle logout
     const handleLogout = () => {
         navigation.reset({
             index: 0,
             routes: [{ name: 'Login' }],
         });
-    };
-
-    // Function to display fetched data in an alert
-    const showCitizenDetails = () => {
-        if (citizen) {
-            const { _id, firstName, lastName, username, email, mobileNumber, address } = citizen;
-            const details = `
-                ID: ${_id}
-                Name: ${firstName} ${lastName}
-                Username: ${username}
-                Email: ${email}
-                Mobile: ${mobileNumber}
-                Address: ${address}
-            `;
-            Alert.alert('Citizen Details', details.trim());
-        } else {
-            Alert.alert('Error', 'No citizen data available.');
-        }
     };
 
     if (loading) {
@@ -79,26 +109,31 @@ export default function ProfileScreen({ navigation }) {
             {/* Profile Title */}
             <Text style={styles.profileText}>Profile</Text>
 
-            {/* Profile Image */}
-            {citizen && citizen.profileImage ? (
-                <Image
-                    source={{ uri: citizen.profileImage }}
-                    style={styles.profileImage}
-                    resizeMode="cover"
-                />
-            ) : (
-                <View style={styles.placeholder}>
-                    <Text style={styles.placeholderText}>No Image</Text>
-                </View>
-            )}
+            {/* Profile Image and Edit Button */}
+            <View style={styles.profileImageContainer}>
+                {citizen && citizen.profileImage ? (
+                    <Image
+                        source={{ uri: citizen.profileImage }}
+                        style={styles.profileImage}
+                        resizeMode="cover"
+                    />
+                ) : (
+                    <View style={styles.placeholder}>
+                        <Text style={styles.placeholderText}>No Image</Text>
+                    </View>
+                )}
+                <TouchableOpacity style={styles.editButton} onPress={handleImagePicker}>
+                    <Text style={styles.editButtonText}>Edit</Text>
+                </TouchableOpacity>
+            </View>
 
             {/* Name Text */}
             <Text style={styles.nameText}>
                 {citizen ? `${citizen.firstName} ${citizen.lastName}` : 'Name not available'}
             </Text>
 
-            {/* Buttons */}
-            <TouchableOpacity style={styles.button} onPress={showCitizenDetails}>
+            {/* Other buttons */}
+            <TouchableOpacity style={styles.button}>
                 <Text style={styles.buttonText}>Show Details</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button}>
@@ -130,11 +165,14 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         color: '#FFF',
     },
+    profileImageContainer: {
+        position: 'relative',
+        marginBottom: 20,
+    },
     profileImage: {
         width: 120,
         height: 120,
         borderRadius: 60,
-        marginBottom: 20,
     },
     placeholder: {
         width: 120,
@@ -143,10 +181,21 @@ const styles = StyleSheet.create({
         backgroundColor: '#D9D9D9',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20,
     },
     placeholderText: {
         color: '#FFF',
+    },
+    editButton: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        backgroundColor: '#0891b2',
+        borderRadius: 50,
+        padding: 10,
+    },
+    editButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
     },
     nameText: {
         fontSize: 18,

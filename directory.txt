@@ -1,0 +1,32 @@
+this is my full direcotory of my React Native Project
+the server folder is the backend
+
+WatchTower-Citizen/
+├── .expo
+├── app
+│   ├── components
+│   ├── navigation
+│   ├── screens
+├── assets
+├── node_modules
+├── server
+│   ├── config
+│   ├── controllers
+│   ├── middleware
+│   ├── models
+│   ├── node_modules
+│   ├── routes
+│   ├── utils
+│   ├── .env
+│   ├── index.js
+│   ├── package-lock.json
+│   ├── package.json 
+├── .env
+├── .gitignore
+├── App.js
+├── app.json
+├── babel.config.js
+├── index.js
+├── package-lock.json
+├── package.json
+├── yarn.lock

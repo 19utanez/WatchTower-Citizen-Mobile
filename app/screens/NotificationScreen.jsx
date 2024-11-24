@@ -7,14 +7,6 @@ export default function NotificationScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Notification Dito</Text>
 
-
-      {/* Profile Icon */}
-      <TouchableOpacity
-        style={styles.profileIcon}
-        onPress={() => navigation.navigate('Profile')} // Navigate to ProfileScreen
-      >
-        <MaterialCommunityIcons name="account-circle" size={60}  color="#D9D9D9" />
-      </TouchableOpacity>
     </View>
   );
 }

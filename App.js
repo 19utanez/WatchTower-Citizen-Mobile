@@ -39,7 +39,7 @@ function TabNavigator() {
       />
       <Tab.Screen
         name="Reports"
-        component={ReportScreen} 
+        component={ReportScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="file-document" color={color} size={size} />
@@ -61,6 +61,15 @@ function TabNavigator() {
         options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="bell" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account" color={color} size={size} />
           ),
         }}
       />
