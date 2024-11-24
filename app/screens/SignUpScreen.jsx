@@ -19,7 +19,7 @@ export default function SignUpScreen({ navigation }) {
         username: username || "no data yet",
         password: password || "no data yet",
         mobileNumber: mobileNumber || "no data yet",
-        email: "no data yet", // Static value
+        email:mobileNumber , // Static value
         address: "no data yet", // Static value
         profileImage: "no data yet", // Static value
       };
@@ -58,6 +58,14 @@ export default function SignUpScreen({ navigation }) {
         value={lastName}
         onChangeText={setLastName}
       />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        placeholderTextColor="#CEC6C6"
+        value={email}
+        onChangeText={setEmail}
+      />  
       <TextInput
         style={styles.input}
         placeholder="Username"

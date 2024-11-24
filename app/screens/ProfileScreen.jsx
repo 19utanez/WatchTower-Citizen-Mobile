@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { launchImageLibrary } from 'react-native-image-picker';
-import Icon from 'react-native-vector-icons/Ionicons'; 
+import Icon from 'react-native-vector-icons/Ionicons';
+import { SERVER_URL } from '@env'; // Import the environment variable
 
 export default function ProfileScreen({ navigation }) {
     const [citizen, setCitizen] = useState(null);
@@ -22,7 +23,7 @@ export default function ProfileScreen({ navigation }) {
             const loggedInUser = await AsyncStorage.getItem('loggedInUser');
             if (loggedInUser) {
                 const { username } = JSON.parse(loggedInUser);
-                const response = await fetch('http://192.168.100.13:5000/api/auth/citizens');
+                const response = await fetch(`${SERVER_URL}/api/auth/citizens`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch citizen data');
                 }
@@ -62,7 +63,7 @@ export default function ProfileScreen({ navigation }) {
                     if (loggedInUser) {
                         const { username } = JSON.parse(loggedInUser);
                         const updateResponse = await fetch(
-                            'http://192.168.100.13:5000/api/auth/updateProfileImage',
+                            `${SERVER_URL}/api/auth/updateProfileImage`,
                             {
                                 method: 'POST',
                                 headers: {
@@ -183,7 +184,6 @@ const renderInfoRow = (icon, label, value) => (
         <Text style={styles.infoText}>{value}</Text>
     </View>
 );
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,

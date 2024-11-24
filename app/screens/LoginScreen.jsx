@@ -14,23 +14,24 @@ export default function LoginScreen({ navigation }) {
     setLoading(true);
     try {
       // API call for login
-      const response = await axios.post(`http://192.168.100.13:5000/api/auth/login`, {
+      const response = await axios.post(`${SERVER_URL}/api/auth/login`, {
         username,
         password,
       });
 
       const { token } = response.data;
+      console.log("SERVER_URL:", `${SERVER_URL}`)
       console.log('Login successful:', token);
 
       // Save credentials in AsyncStorage
       await AsyncStorage.setItem('loggedInUser', JSON.stringify({ username, password }));
-      
 
       // Navigate to the Main screen
       navigation.navigate('Main');
     } catch (error) {
       console.error('Login failed:', error.response?.data?.message || error.message);
       Alert.alert('Error', 'An error occurred, please try again later.');
+      console.log(SERVER_URL, `${SERVER_URL}`)
     } finally {
       setLoading(false);
     }
@@ -40,7 +41,6 @@ export default function LoginScreen({ navigation }) {
     <View style={styles.container}>
       <Image source={logo} style={styles.logo} />
       <Text style={styles.title}>WatchTower</Text>
-
       <Text style={styles.label}>Login</Text>
 
       <TextInput

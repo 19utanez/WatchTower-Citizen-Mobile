@@ -4,6 +4,7 @@ import { Picker } from '@react-native-picker/picker';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SERVER_URL } from '@env'; // Import the environment variable
 
 export default function ReportScreen({ route, navigation }) {
   const [selectedDisaster, setSelectedDisaster] = useState('');
@@ -19,17 +20,17 @@ export default function ReportScreen({ route, navigation }) {
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
+  
     if (!permissionResult.granted) {
       Alert.alert('Permission Required', 'Permission to access the media library is required!');
       return;
     }
-
+  
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaType.IMAGE, // Fixed here
       quality: 1,
     });
-
+  
     if (!result.canceled) {
       setImages((prevImages) => [...prevImages, result.assets[0].uri]);
     }
@@ -52,7 +53,7 @@ export default function ReportScreen({ route, navigation }) {
       }
   
       // Fetch citizens data from backend
-      const response = await fetch('http://192.168.100.13:5000/api/auth/citizens');
+      const response = await fetch(`${SERVER_URL}/api/auth/citizens`);
       const citizens = await response.json();
   
       // Find the citizen that matches the username
@@ -92,7 +93,7 @@ export default function ReportScreen({ route, navigation }) {
       });
   
       // Send the report to the backend
-      const result = await fetch('http://192.168.100.13:5000/api/reports', {
+      const result = await fetch(`${SERVER_URL}/api/reports`, {
         method: 'POST',
         headers: {
           'Content-Type': 'multipart/form-data',
