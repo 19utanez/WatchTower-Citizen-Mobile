@@ -1,4 +1,5 @@
 import Report from "../models/Report.js";
+import Citizen from "../models/Citizen.js";
 import { getGfsBucket } from "../utils/gridFsUtils.js";
 import mongoose from 'mongoose';
 
