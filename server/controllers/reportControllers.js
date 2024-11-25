@@ -48,26 +48,36 @@ export const getReports = async (req, res) => {
 
 // Create a new report with image uploads to GridFS
 export const createReport = async (req, res) => {
-  const { reporterId, reportedBy, location, disasterInfo, disasterCategory, disasterStatus, priority, rescuerId, rescuedBy } = req.body;
-  
+  const {
+    reporterId,
+    reportedBy,
+    location,
+    disasterInfo,
+    disasterCategory,
+    disasterStatus,
+    priority,
+    rescuerId,
+    rescuedBy,
+  } = req.body;
+
   const disasterImages = [];
   const gfsBucket = getGfsBucket();
 
   try {
-    // Check if files are provided and upload to GridFS
+    // Upload files to GridFS if provided
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const writeStream = gfsBucket.openUploadStream(file.originalname, {
           contentType: file.mimetype,
         });
         writeStream.end(file.buffer);
-        
+
         await new Promise((resolve, reject) => {
-          writeStream.on('finish', () => {
+          writeStream.on("finish", () => {
             disasterImages.push(writeStream.id.toString()); // Store GridFS file ID
             resolve();
           });
-          writeStream.on('error', reject);
+          writeStream.on("error", reject);
         });
       }
     }
@@ -87,13 +97,24 @@ export const createReport = async (req, res) => {
     });
 
     await newReport.save();
-    res.status(201).json(newReport);
+
+    // Update the citizen's reports array
+    const updatedCitizen = await Citizen.findByIdAndUpdate(
+      reporterId,
+      { $push: { reports: newReport._id } }, // Add the report ID to the citizen's reports array
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedCitizen) {
+      return res.status(404).json({ message: "Citizen not found" });
+    }
+
+    res.status(201).json(newReport); // Return the newly created report
   } catch (error) {
-    console.error('Error creating report:', error);
+    console.error("Error creating report:", error);
     res.status(400).json({ message: error.message });
   }
 };
-
 // Delete a report
 export const deleteReport = async (req, res) => {
   try {

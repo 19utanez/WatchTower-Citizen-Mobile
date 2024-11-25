@@ -4,7 +4,7 @@ import { Picker } from '@react-native-picker/picker';
 import { MaterialCommunityIcons } from 'react-native-vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SERVER_URL } from '@env'; // Import the environment variable
+import { SERVER_URL } from '@env';
 
 export default function ReportScreen({ route, navigation }) {
   const [selectedDisaster, setSelectedDisaster] = useState('');
@@ -19,20 +19,25 @@ export default function ReportScreen({ route, navigation }) {
   }, [route.params?.location]);
 
   const pickImage = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  
-    if (!permissionResult.granted) {
-      Alert.alert('Permission Required', 'Permission to access the media library is required!');
-      return;
-    }
-  
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType.IMAGE, // Fixed here
-      quality: 1,
-    });
-  
-    if (!result.canceled) {
-      setImages((prevImages) => [...prevImages, result.assets[0].uri]);
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert('Permission Required', 'Permission to access the media library is required!');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets) {
+        setImages((prevImages) => [...prevImages, result.assets[0].uri]);
+        console.log('Selected Images:', [...images, result.assets[0].uri]);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'An error occurred while selecting an image.');
     }
   };
 
@@ -44,29 +49,24 @@ export default function ReportScreen({ route, navigation }) {
     try {
       const loggedInUser = await AsyncStorage.getItem('loggedInUser');
       const user = loggedInUser ? JSON.parse(loggedInUser) : {};
-  
       const { username } = user;
-  
+
       if (!username) {
         Alert.alert('Error', 'No logged-in user found!');
         return;
       }
-  
-      // Fetch citizens data from backend
+
       const response = await fetch(`${SERVER_URL}/api/auth/citizens`);
       const citizens = await response.json();
-  
-      // Find the citizen that matches the username
       const citizen = citizens.find((citizen) => citizen.username === username);
-  
+
       if (!citizen) {
         Alert.alert('Error', 'Citizen data not found!');
         return;
       }
-  
+
       const { _id, firstName = 'Unknown', lastName = 'User' } = citizen;
-  
-      // Create the report details
+
       const reportDetails = {
         reporterId: _id,
         reportedBy: `${firstName} ${lastName}`,
@@ -78,21 +78,17 @@ export default function ReportScreen({ route, navigation }) {
         rescuerId: 'no rescuer yet',
         rescuedBy: 'no rescuer yet',
       };
-  
-      // Prepare form data for file uploads
+
       const formData = new FormData();
-      Object.keys(reportDetails).forEach((key) => {
-        formData.append(key, reportDetails[key]);
-      });
-  
-      // Append images to formData
+      Object.keys(reportDetails).forEach((key) => formData.append(key, reportDetails[key]));
+
       images.forEach((imageUri, index) => {
         const filename = imageUri.split('/').pop();
         const type = `image/${filename.split('.').pop()}`;
+        console.log(`Uploading Image: URI=${imageUri}, Filename=${filename}, Type=${type}`);
         formData.append('disasterImages', { uri: imageUri, name: filename, type });
       });
-  
-      // Send the report to the backend
+
       const result = await fetch(`${SERVER_URL}/api/reports`, {
         method: 'POST',
         headers: {
@@ -100,20 +96,17 @@ export default function ReportScreen({ route, navigation }) {
         },
         body: formData,
       });
-  
+
       if (!result.ok) {
         throw new Error('Failed to submit the report');
       }
-  
+
       Alert.alert('Success', 'Report submitted successfully!');
-  
-      // Clear all fields
       setSelectedDisaster('');
       setDescription('');
       setImages([]);
       setLocation('');
-  
-      navigation.goBack(); // Go back to the previous screen after submission
+      navigation.goBack();
     } catch (error) {
       console.error('Error submitting report:', error);
       Alert.alert('Error', 'An error occurred while submitting the report.');
@@ -165,7 +158,7 @@ export default function ReportScreen({ route, navigation }) {
         <ScrollView horizontal style={styles.imageContainer}>
           {images.map((image, index) => (
             <View key={index} style={styles.imageWrapper}>
-              <Image source={{ uri: image }} style={styles.image} />
+              <Image source={{ uri: `${image}?timestamp=${Date.now()}` }} style={styles.image} />
               <TouchableOpacity
                 style={styles.deleteIcon}
                 onPress={() => deleteImage(index)}
