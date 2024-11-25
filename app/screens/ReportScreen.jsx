@@ -18,19 +18,56 @@ export default function ReportScreen({ route, navigation }) {
     }
   }, [route.params?.location]);
 
+  // Function to handle opening image options (camera or gallery)
+  const openImageOptions = () => {
+    Alert.alert(
+      "Select Image Source",
+      "Choose an option to upload an image",
+      [
+        {
+          text: "Take a Photo",
+          onPress: openCamera
+        },
+        {
+          text: "Choose from Gallery",
+          onPress: pickImage
+        },
+        { text: "Cancel", style: "cancel" }
+      ]
+    );
+  };
+
+  // Function to open the camera
+  const openCamera = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permissionResult.granted) {
+      Alert.alert('Permission Required', 'Permission to access the camera is required!');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImages((prevImages) => [...prevImages, result.assets[0].uri]);
+    }
+  };
+
+  // Function to open the image gallery
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  
+
     if (!permissionResult.granted) {
       Alert.alert('Permission Required', 'Permission to access the media library is required!');
       return;
     }
-  
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
     });
-  
+
     if (!result.canceled) {
       setImages((prevImages) => [...prevImages, result.assets[0].uri]);
     }
@@ -158,7 +195,7 @@ export default function ReportScreen({ route, navigation }) {
 
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Attach Image</Text>
-        <TouchableOpacity style={styles.cameraBox} onPress={pickImage}>
+        <TouchableOpacity style={styles.cameraBox} onPress={openImageOptions}>
           <MaterialCommunityIcons name="camera" size={40} color="#D9D9D9" />
           <Text style={styles.label}>Click here to upload Images</Text>
         </TouchableOpacity>
