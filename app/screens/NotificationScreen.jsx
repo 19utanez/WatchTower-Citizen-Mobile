@@ -9,7 +9,6 @@ export default function NotificationScreen() {
 
   const fetchCitizenData = async () => {
     try {
-      setLoading(true);
       const loggedInUser = await AsyncStorage.getItem('loggedInUser');
       if (loggedInUser) {
         const { username } = JSON.parse(loggedInUser);
