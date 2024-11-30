@@ -163,9 +163,6 @@ export default function ProfileScreen({ navigation }) {
                     <TouchableOpacity style={styles.button}>
                         <Text style={styles.buttonText}>Change Password</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.button}>
-                        <Text style={styles.buttonText}>Notification Settings</Text>
-                    </TouchableOpacity>
                     <TouchableOpacity style={styles.button} onPress={handleLogout}>
                         <Text style={styles.buttonText}>Logout</Text>
                     </TouchableOpacity>
