@@ -1,8 +1,35 @@
 // app/components/ReportCard.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
 
 export default function ReportCard({ category, description, images, status, rescuedBy }) {
+  const [imageUris, setImageUris] = useState([]);
+
+  // Fetch images when the component is mounted
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const imageUrls = await Promise.all(
+          images.map(async (imageId) => {
+            const response = await fetch(`http://192.168.100.13:5000/api/image/${imageId}`);
+            if (!response.ok) {
+              throw new Error('Failed to fetch image');
+            }
+            const blob = await response.blob();
+            return URL.createObjectURL(blob); // Convert blob to a URL
+          })
+        );
+        setImageUris(imageUrls); // Set the URIs for the images
+      } catch (error) {
+        console.error('Error fetching images:', error);
+      }
+    };
+
+    if (images.length > 0) {
+      fetchImages(); // Only fetch images if the images array is not empty
+    }
+  }, [images]); // Dependency array ensures it re-fetches if images change
+
   return (
     <View style={styles.card}>
       {/* Category at the top */}
@@ -10,8 +37,8 @@ export default function ReportCard({ category, description, images, status, resc
 
       {/* Images below the category */}
       <ScrollView horizontal style={styles.imageContainer}>
-        {images.map((image, index) => (
-          <Image key={index} source={{ uri: image }} style={styles.image} />
+        {imageUris.map((uri, index) => (
+          <Image key={index} source={{ uri }} style={styles.image} />
         ))}
       </ScrollView>
 
