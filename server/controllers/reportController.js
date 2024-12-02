@@ -26,17 +26,15 @@ export const getImage = async (req, res) => {
   const gfsBucket = getGfsBucket();
 
   try {
-    // Use `new` when creating ObjectId
     const file = await gfsBucket.find({ _id: new mongoose.Types.ObjectId(id) }).toArray();
 
     if (!file || file.length === 0) {
       return res.status(404).send("File not found");
     }
 
-    // Stream the image directly to the response
     const downloadStream = gfsBucket.openDownloadStream(new mongoose.Types.ObjectId(id));
 
-    res.set("Content-Type", file[0].contentType); // Set the correct MIME type
+    res.set("Content-Type", file[0].contentType);
     downloadStream.pipe(res);
   } catch (error) {
     console.error("Error retrieving image:", error);
@@ -72,6 +70,7 @@ export const createReport = async (req, res) => {
   const gfsBucket = getGfsBucket();
 
   try {
+    // Process uploaded files
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const writeStream = gfsBucket.openUploadStream(file.originalname, {
@@ -104,6 +103,7 @@ export const createReport = async (req, res) => {
 
     await newReport.save();
 
+    // Associate report with citizen
     const updatedCitizen = await Citizen.findByIdAndUpdate(
       reporterId,
       { $push: { reports: newReport._id } },
