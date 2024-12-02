@@ -1,8 +1,9 @@
+// app/screens/NotificationScreen.jsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SERVER_URL } from '@env'; // Import the environment variable
-import ReportCard from '../components/ReportCard'; // Import the ReportCard component
+import ReportCard from '../components/ReportCard';
 
 export default function NotificationScreen() {
   const [reports, setReports] = useState([]);
@@ -14,7 +15,7 @@ export default function NotificationScreen() {
         const loggedInUser = await AsyncStorage.getItem('loggedInUser');
         if (loggedInUser) {
           const { username } = JSON.parse(loggedInUser);
-          const response = await fetch(`${SERVER_URL}/api/auth/citizens`);
+          const response = await fetch(`http://192.168.1.6:5000/api/auth/citizens`);
           if (!response.ok) {
             throw new Error('Failed to fetch citizen data');
           }
@@ -22,7 +23,7 @@ export default function NotificationScreen() {
           const loggedInCitizen = data.find(citizen => citizen.username === username);
           if (loggedInCitizen && loggedInCitizen.reports.length > 0) {
             const reportPromises = loggedInCitizen.reports.map(id =>
-              fetch(`${SERVER_URL}/api/reports/${id}`).then(response => response.json())
+              fetch(`http://192.168.1.6:5000/api/reports/${id}`).then(response => response.json())
             );
             const reportsData = await Promise.all(reportPromises);
             setReports(reportsData);
@@ -40,7 +41,7 @@ export default function NotificationScreen() {
     };
 
     fetchReports();
-  }, []); // This will run once when the component mounts
+  }, []);
 
   if (loading) {
     return (
@@ -55,19 +56,36 @@ export default function NotificationScreen() {
       <Text style={styles.title}>Notifications</Text>
 
       {reports.length > 0 ? (
-        <View style={styles.reportsContainer}>
+        <ScrollView style={styles.reportsContainer}>
           <Text style={styles.reportsTitle}>Active Reports</Text>
           {reports.map((report, index) => (
-            <ReportCard
-              key={index}
-              category={report.disasterCategory}
-              description={report.disasterInfo}
-              images={report.disasterImages}
-              status={report.disasterStatus}
-              rescuedBy={report.rescuedBy} // You can choose to display this field if it's available
-            />
+            <View key={index} style={styles.reportCard}>
+              <ReportCard
+                category={report.disasterCategory}
+                description={report.disasterInfo}
+                status={report.disasterStatus}
+                rescuedBy={report.rescuedBy}
+              />
+              {report.disasterImages && report.disasterImages.length > 0 && (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.imageContainer}
+                >
+                  {report.disasterImages.map((imageId) => (
+                    <Image
+                      key={imageId}
+                      source={{
+                        uri: `http://192.168.1.6:5000/api/reports/image/${imageId}`,
+                      }}
+                      style={styles.image}
+                    />
+                  ))}
+                </ScrollView>
+              )}
+            </View>
           ))}
-        </View>
+        </ScrollView>
       ) : (
         <Text style={styles.noReportsText}>No reports available.</Text>
       )}
@@ -80,13 +98,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#071025',
     paddingHorizontal: 16,
-    paddingTop: 40, // Space for a header if needed
+    paddingTop: 40,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 20, // Space below the main title
+    marginBottom: 20,
   },
   reportsContainer: {
     marginTop: 20,
@@ -98,6 +116,21 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 10,
+  },
+  reportCard: {
+    marginBottom: 20,
+    backgroundColor: '#1A1F2A',
+    padding: 10,
+    borderRadius: 10,
+  },
+  imageContainer: {
+    marginTop: 10,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 5,
+    marginRight: 10,
   },
   noReportsText: {
     fontSize: 16,

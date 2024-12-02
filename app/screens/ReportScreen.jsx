@@ -94,7 +94,7 @@ export default function ReportScreen({ route, navigation }) {
       }
 
       // Fetch citizens data from backend
-      const response = await fetch(`${SERVER_URL}/api/auth/citizens`);
+      const response = await fetch(`http://192.168.1.6:5000/api/auth/citizens`);
       const citizens = await response.json();
 
       // Find the citizen that matches the username
@@ -134,7 +134,7 @@ export default function ReportScreen({ route, navigation }) {
       });
 
       // Send the report to the backend
-      const result = await fetch(`${SERVER_URL}/api/reports`, {
+      const result = await fetch(`http://192.168.1.6:5000/api/reports`, {
         method: 'POST',
         headers: {
           'Content-Type': 'multipart/form-data',

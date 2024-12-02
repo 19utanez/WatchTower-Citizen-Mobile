@@ -5,47 +5,34 @@ import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
 export default function ReportCard({ category, description, images, status, rescuedBy }) {
   const [imageUris, setImageUris] = useState([]);
 
-  // Fetch images when the component is mounted
   useEffect(() => {
-    const fetchImages = async () => {
+    const fetchImages = () => {
       try {
-        const imageUrls = await Promise.all(
-          images.map(async (imageId) => {
-            const response = await fetch(`http://192.168.100.13:5000/api/image/${imageId}`);
-            if (!response.ok) {
-              throw new Error('Failed to fetch image');
-            }
-            const blob = await response.blob();
-            return URL.createObjectURL(blob); // Convert blob to a URL
-          })
-        );
-        setImageUris(imageUrls); // Set the URIs for the images
+        const imageUrls = images.map((imageId) => `http://192.168.1.6:5000/api/reports/image/${imageId}`);
+        setImageUris(imageUrls);
       } catch (error) {
         console.error('Error fetching images:', error);
       }
     };
 
-    if (images.length > 0) {
+    if (images && images.length > 0) {
       fetchImages(); // Only fetch images if the images array is not empty
     }
-  }, [images]); // Dependency array ensures it re-fetches if images change
+  }, [images]);
 
   return (
     <View style={styles.card}>
-      {/* Category at the top */}
       <Text style={styles.category}>{category}</Text>
 
-      {/* Images below the category */}
+      {/* Scrollable Image Container */}
       <ScrollView horizontal style={styles.imageContainer}>
         {imageUris.map((uri, index) => (
           <Image key={index} source={{ uri }} style={styles.image} />
         ))}
       </ScrollView>
 
-      {/* Description below the images */}
       <Text style={styles.description}>{description}</Text>
 
-      {/* Status and Rescued By at the bottom */}
       <View style={styles.statusContainer}>
         <Text style={styles.status}>Status: {status}</Text>
         {rescuedBy && <Text style={styles.rescuedBy}>Rescued By: {rescuedBy}</Text>}
@@ -77,27 +64,26 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 150,
+    height: 150,
     borderRadius: 8,
     marginRight: 10,
   },
   description: {
     fontSize: 14,
-    color: '#B0C4DE',
+    color: '#fff',
     marginBottom: 10,
-    textAlign: 'left',
   },
   statusContainer: {
-    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   status: {
     fontSize: 14,
-    color: '#FFD700',
-    marginBottom: 5,
+    color: '#FF6347',
   },
   rescuedBy: {
     fontSize: 14,
-    color: '#32CD32',
+    color: '#90EE90',
   },
 });

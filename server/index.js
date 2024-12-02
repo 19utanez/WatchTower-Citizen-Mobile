@@ -1,11 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose'; // Ensure mongoose is imported
+import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
-import reportRoutes from './routes/reportRoutes.js'; // Fixed the import path
-import { connectGridFs } from "./utils/gridFsUtils.js";
+import reportRoutes from './routes/reportRoutes.js'; // Ensure correct import path
+import { connectGridFs } from './utils/gridFsUtils.js';  // GridFS utilities
 
 dotenv.config();
 
@@ -15,19 +15,23 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: "*", // Allow requests from all origins
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 app.use(express.json()); // Parse JSON bodies
 
-// Initialize GridFS after database connection
-const connection = mongoose.connection;
-connection.once('open', () => {
+// Initialize GridFS after MongoDB connection
+mongoose.connection.once('open', () => {
   console.log('MongoDB connected and GridFS initialized.');
-  connectGridFs(connection); // Initialize GridFS
+  connectGridFs(mongoose.connection); // Initialize GridFS
 });
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/reports', reportRoutes); // Add the reports routes
+app.use('/api/reports', reportRoutes); // Ensure correct routes are included
 
 // Start the server
 const PORT = process.env.PORT || 5000;
