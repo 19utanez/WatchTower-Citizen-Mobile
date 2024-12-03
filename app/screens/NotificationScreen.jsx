@@ -25,7 +25,7 @@ export default function NotificationScreen() {
         const loggedInUser = await AsyncStorage.getItem('loggedInUser');
         if (loggedInUser) {
           const { username } = JSON.parse(loggedInUser);
-          const response = await fetch(`http://172.20.23.3:5000/api/auth/citizens`);
+          const response = await fetch(`http://192.168.1.11:5000/api/auth/citizens`);
           if (!response.ok) {
             throw new Error('Failed to fetch citizen data');
           }
@@ -33,7 +33,7 @@ export default function NotificationScreen() {
           const loggedInCitizen = data.find((citizen) => citizen.username === username);
           if (loggedInCitizen && loggedInCitizen.reports.length > 0) {
             const reportPromises = loggedInCitizen.reports.map((id) =>
-              fetch(`http://172.20.23.3:5000/api/reports/${id}`).then((response) => response.json())
+              fetch(`http://192.168.1.11:5000/api/reports/${id}`).then((response) => response.json())
             );
             const reportsData = await Promise.all(reportPromises);
             setReports(reportsData);
@@ -106,7 +106,7 @@ export default function NotificationScreen() {
                       onPress={() =>
                         openImageModal(
                           report.disasterImages.map(
-                            (id) => `http://172.20.23.3:5000/api/reports/image/${id}`
+                            (id) => `http://192.168.1.11:5000/api/reports/image/${id}`
                           ),
                           imgIndex
                         )
@@ -114,7 +114,7 @@ export default function NotificationScreen() {
                     >
                       <Image
                         source={{
-                          uri: `http://172.20.23.3:5000/api/reports/image/${imageId}`,
+                          uri: `http://192.168.1.11:5000/api/reports/image/${imageId}`,
                         }}
                         style={styles.image}
                       />
