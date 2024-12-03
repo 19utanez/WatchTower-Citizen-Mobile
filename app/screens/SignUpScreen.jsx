@@ -26,7 +26,7 @@ export default function SignUpScreen({ navigation }) {
       };
   
       const response = await axios.post(
-        "http://192.168.100.13:5000/api/auth/citizens",
+        "https://watchtower-citizen-mobile.onrender.com/api/auth/citizens",
         requestBody
       );
   

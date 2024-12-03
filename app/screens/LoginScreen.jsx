@@ -14,7 +14,7 @@ export default function LoginScreen({ navigation }) {
     setLoading(true);
     try {
       // API call for login
-      const response = await axios.post(`http://172.20.23.3:5000/api/auth/login`, {
+      const response = await axios.post(`https://watchtower-citizen-mobile.onrender.com/api/auth/login`, {
         username,
         password,
       });

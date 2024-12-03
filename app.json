@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "CitizenWT",
-    "slug": "CitizenWT",
+    "slug": "citizenwt",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,10 +19,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.watchtower.citizen"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "80803443-1fb8-44c2-a54a-a8919aad1136"
+      }
+    },
+    "owner": "18utanez"
   }
 }

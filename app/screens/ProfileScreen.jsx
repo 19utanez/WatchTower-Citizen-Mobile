@@ -23,7 +23,7 @@ export default function ProfileScreen({ navigation }) {
             const loggedInUser = await AsyncStorage.getItem('loggedInUser');
             if (loggedInUser) {
                 const { username } = JSON.parse(loggedInUser);
-                const response = await fetch(`http://172.20.23.3:5000/api/auth/citizens`);
+                const response = await fetch(`https://watchtower-citizen-mobile.onrender.com/api/auth/citizens`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch citizen data');
                 }

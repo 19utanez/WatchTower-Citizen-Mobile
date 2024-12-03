@@ -7,7 +7,7 @@
     useEffect(() => {
       const fetchImages = () => {
         try {
-          const imageUrls = images.map((imageId) => `http://172.20.23.3:5000/api/reports/image/${imageId}`);
+          const imageUrls = images.map((imageId) => `https://watchtower-citizen-mobile.onrender.com/api/reports/image/${imageId}`);
           setImageUris(imageUrls);
         } catch (error) {
           console.error('Error fetching images:', error);

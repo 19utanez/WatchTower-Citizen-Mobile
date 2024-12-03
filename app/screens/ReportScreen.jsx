@@ -81,7 +81,7 @@ export default function ReportScreen({ route, navigation }) {
         return;
       }
 
-      const response = await fetch('http://172.20.23.3:5000/api/auth/citizens');
+      const response = await fetch('https://watchtower-citizen-mobile.onrender.com/api/auth/citizens');
       const citizens = await response.json();
       const citizen = citizens.find((c) => c.username === username);
 
@@ -114,7 +114,7 @@ export default function ReportScreen({ route, navigation }) {
         formData.append('disasterImages', { uri: imageUri, name: filename, type });
       });
 
-      const result = await fetch('http://172.20.23.3:5000/api/reports', {
+      const result = await fetch('https://watchtower-citizen-mobile.onrender.com/api/reports', {
         method: 'POST',
         headers: { 'Content-Type': 'multipart/form-data' },
         body: formData,
