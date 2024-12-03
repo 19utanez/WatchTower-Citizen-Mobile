@@ -26,28 +26,27 @@ export const getImage = async (req, res) => {
   const gfsBucket = getGfsBucket();
 
   try {
-    // Ensure the file ID is valid
+    // Validate MongoDB ObjectID
     if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.error("Invalid ObjectId:", id);
       return res.status(400).json({ message: "Invalid file ID" });
     }
 
-    // Find the file in GridFS
+    // Check if file exists in GridFS
     const files = await gfsBucket.find({ _id: new mongoose.Types.ObjectId(id) }).toArray();
-
     if (!files || files.length === 0) {
+      console.error("File not found:", id);
       return res.status(404).json({ message: "File not found" });
     }
 
     const file = files[0];
-
-    // Open a download stream for the file
     const downloadStream = gfsBucket.openDownloadStream(file._id);
 
-    // Set the appropriate headers
+    // Set appropriate headers for the response
     res.set("Content-Type", file.contentType);
     res.set("Content-Disposition", `inline; filename="${file.filename}"`);
 
-    // Pipe the stream to the response
+    // Pipe the stream to the client
     downloadStream.pipe(res);
 
     downloadStream.on("error", (err) => {
@@ -89,7 +88,6 @@ export const createReport = async (req, res) => {
   const gfsBucket = getGfsBucket();
 
   try {
-    // Handle file uploads
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const writeStream = gfsBucket.openUploadStream(file.originalname, {
@@ -97,19 +95,16 @@ export const createReport = async (req, res) => {
         });
         writeStream.end(file.buffer);
 
-        const uploadPromise = new Promise((resolve, reject) => {
+        await new Promise((resolve, reject) => {
           writeStream.on("finish", () => {
             disasterImages.push(writeStream.id.toString());
             resolve();
           });
           writeStream.on("error", reject);
         });
-
-        await uploadPromise;
       }
     }
 
-    // Create the report
     const newReport = new Report({
       reporterId,
       reportedBy,
@@ -125,7 +120,6 @@ export const createReport = async (req, res) => {
 
     await newReport.save();
 
-    // Associate the report with the citizen
     const updatedCitizen = await Citizen.findByIdAndUpdate(
       reporterId,
       { $push: { reports: newReport._id } },
@@ -142,6 +136,7 @@ export const createReport = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 

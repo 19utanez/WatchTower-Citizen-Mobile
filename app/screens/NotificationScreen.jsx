@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ReportCard from '../components/ReportCard';
-import { getImageUrlById } from '../utils/imageUtils';
 
 export default function NotificationScreen() {
   const [reports, setReports] = useState([]);
@@ -26,18 +25,24 @@ export default function NotificationScreen() {
         const loggedInUser = await AsyncStorage.getItem('loggedInUser');
         if (loggedInUser) {
           const { username } = JSON.parse(loggedInUser);
+
+          // Fetch citizen data
           const response = await fetch(
             `https://watchtower-citizen-mobile.onrender.com/api/auth/citizens`
           );
           if (!response.ok) {
             throw new Error('Failed to fetch citizen data');
           }
-          const data = await response.json();
-          const loggedInCitizen = data.find((citizen) => citizen.username === username);
+
+          const citizens = await response.json();
+          const loggedInCitizen = citizens.find(
+            (citizen) => citizen.username === username
+          );
+
           if (loggedInCitizen && loggedInCitizen.reports.length > 0) {
             const reportPromises = loggedInCitizen.reports.map((id) =>
               fetch(`https://watchtower-citizen-mobile.onrender.com/api/reports/${id}`).then(
-                (response) => response.json()
+                (res) => res.json()
               )
             );
             const reportsData = await Promise.all(reportPromises);
@@ -59,7 +64,11 @@ export default function NotificationScreen() {
   }, []);
 
   const openImageModal = (images, index) => {
-    setCurrentImages(images.map(getImageUrlById));
+    const imageUrls = images.map(
+      (id) =>
+        `https://watchtower-citizen-mobile.onrender.com/api/reports/image/${id}`
+    );
+    setCurrentImages(imageUrls);
     setCurrentImageIndex(index);
     setModalVisible(true);
   };
@@ -99,6 +108,7 @@ export default function NotificationScreen() {
                 images={report.disasterImages}
                 status={report.disasterStatus}
                 rescuedBy={report.rescuedBy}
+                onImagePress={(images, imageIndex) => openImageModal(images, imageIndex)}
               />
             </View>
           ))}
@@ -112,7 +122,13 @@ export default function NotificationScreen() {
           <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
             <Text style={styles.closeText}>X</Text>
           </TouchableOpacity>
-          <Image source={{ uri: currentImages[currentImageIndex] }} style={styles.enlargedImage} />
+          {currentImages[currentImageIndex] && (
+            <Image
+              source={{ uri: currentImages[currentImageIndex] }}
+              style={styles.enlargedImage}
+              onError={(error) => console.error('Error loading image:', error.nativeEvent.error)}
+            />
+          )}
           <View style={styles.modalNavigation}>
             <TouchableOpacity
               onPress={handlePreviousImage}
@@ -135,10 +151,8 @@ export default function NotificationScreen() {
   );
 }
 
-// Styles remain unchanged.
-
-
 const styles = StyleSheet.create({
+  // Styles remain unchanged
   container: {
     flex: 1,
     backgroundColor: '#071025',
@@ -167,15 +181,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#1A1F2A',
     padding: 10,
     borderRadius: 10,
-  },
-  imageContainer: {
-    marginTop: 10,
-  },
-  image: {
-    width: 100,
-    height: 100,
-    borderRadius: 5,
-    marginRight: 10,
   },
   noReportsText: {
     fontSize: 16,
