@@ -26,21 +26,40 @@ export const getImage = async (req, res) => {
   const gfsBucket = getGfsBucket();
 
   try {
-    const file = await gfsBucket.find({ _id: new mongoose.Types.ObjectId(id) }).toArray();
-
-    if (!file || file.length === 0) {
-      return res.status(404).send("File not found");
+    // Ensure the file ID is valid
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid file ID" });
     }
 
-    const downloadStream = gfsBucket.openDownloadStream(new mongoose.Types.ObjectId(id));
+    // Find the file in GridFS
+    const files = await gfsBucket.find({ _id: new mongoose.Types.ObjectId(id) }).toArray();
 
-    res.set("Content-Type", file[0].contentType);
+    if (!files || files.length === 0) {
+      return res.status(404).json({ message: "File not found" });
+    }
+
+    const file = files[0];
+
+    // Open a download stream for the file
+    const downloadStream = gfsBucket.openDownloadStream(file._id);
+
+    // Set the appropriate headers
+    res.set("Content-Type", file.contentType);
+    res.set("Content-Disposition", `inline; filename="${file.filename}"`);
+
+    // Pipe the stream to the response
     downloadStream.pipe(res);
+
+    downloadStream.on("error", (err) => {
+      console.error("Stream error:", err);
+      res.status(500).json({ message: "Error streaming the file" });
+    });
   } catch (error) {
     console.error("Error retrieving image:", error);
-    res.status(500).send("Error retrieving image");
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 // Get all reports
 export const getReports = async (req, res) => {
@@ -70,7 +89,7 @@ export const createReport = async (req, res) => {
   const gfsBucket = getGfsBucket();
 
   try {
-    // Process uploaded files
+    // Handle file uploads
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
         const writeStream = gfsBucket.openUploadStream(file.originalname, {
@@ -78,16 +97,19 @@ export const createReport = async (req, res) => {
         });
         writeStream.end(file.buffer);
 
-        await new Promise((resolve, reject) => {
+        const uploadPromise = new Promise((resolve, reject) => {
           writeStream.on("finish", () => {
             disasterImages.push(writeStream.id.toString());
             resolve();
           });
           writeStream.on("error", reject);
         });
+
+        await uploadPromise;
       }
     }
 
+    // Create the report
     const newReport = new Report({
       reporterId,
       reportedBy,
@@ -103,7 +125,7 @@ export const createReport = async (req, res) => {
 
     await newReport.save();
 
-    // Associate report with citizen
+    // Associate the report with the citizen
     const updatedCitizen = await Citizen.findByIdAndUpdate(
       reporterId,
       { $push: { reports: newReport._id } },
@@ -117,9 +139,11 @@ export const createReport = async (req, res) => {
     res.status(201).json(newReport);
   } catch (error) {
     console.error("Error creating report:", error);
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 
 // Delete a report
 export const deleteReport = async (req, res) => {

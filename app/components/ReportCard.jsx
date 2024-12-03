@@ -1,44 +1,52 @@
-  import React, { useState, useEffect } from 'react';
-  import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import { getImageUrlById } from '../utils/imageUtils';
 
-  export default function ReportCard({ category, description, images, status, rescuedBy }) {
-    const [imageUris, setImageUris] = useState([]);
+export default function ReportCard({ category, description, images, status, rescuedBy }) {
+  const [imageUris, setImageUris] = useState([]);
 
-    useEffect(() => {
-      const fetchImages = () => {
-        try {
-          const imageUrls = images.map((imageId) => `https://watchtower-citizen-mobile.onrender.com/api/reports/image/${imageId}`);
-          setImageUris(imageUrls);
-        } catch (error) {
-          console.error('Error fetching images:', error);
-        }
-      };
-
-      if (images && images.length > 0) {
-        fetchImages(); // Only fetch images if the images array is not empty
+  useEffect(() => {
+    const fetchImages = () => {
+      try {
+        const imageUrls = images.map((imageId) => getImageUrlById(imageId));
+        setImageUris(imageUrls);
+      } catch (error) {
+        console.error('Error processing image URLs:', error);
       }
-    }, [images]);
+    };
 
-    return (
-      <View style={styles.card}>
-        <Text style={styles.category}>{category}</Text>
+    if (images && images.length > 0) {
+      fetchImages();
+    }
+  }, [images]);
 
-        {/* Scrollable Image Container */}
-        <ScrollView horizontal style={styles.imageContainer}>
-          {imageUris.map((uri, index) => (
-            <Image key={index} source={{ uri }} style={styles.image} />
-          ))}
-        </ScrollView>
+  return (
+    <View style={styles.card}>
+      <Text style={styles.category}>{category}</Text>
 
-        <Text style={styles.description}>{description}</Text>
+      <ScrollView horizontal style={styles.imageContainer}>
+        {imageUris.map((uri, index) => (
+          <Image
+            key={index}
+            source={{ uri }}
+            style={styles.image}
+            onError={() => console.error(`Error loading image at: ${uri}`)}
+          />
+        ))}
+      </ScrollView>
 
-        <View style={styles.statusContainer}>
-          <Text style={styles.status}>Status: {status}</Text>
-          {rescuedBy && <Text style={styles.rescuedBy}>Rescued By: {rescuedBy}</Text>}
-        </View>
+      <Text style={styles.description}>{description}</Text>
+
+      <View style={styles.statusContainer}>
+        <Text style={styles.status}>Status: {status}</Text>
+        {rescuedBy && <Text style={styles.rescuedBy}>Rescued By: {rescuedBy}</Text>}
       </View>
-    );
-  }
+    </View>
+  );
+}
+
+// Styles remain unchanged.
+
 
   const styles = StyleSheet.create({
     card: {

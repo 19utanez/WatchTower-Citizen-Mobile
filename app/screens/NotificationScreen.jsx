@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ReportCard from '../components/ReportCard';
+import { getImageUrlById } from '../utils/imageUtils';
 
 export default function NotificationScreen() {
   const [reports, setReports] = useState([]);
@@ -25,7 +26,9 @@ export default function NotificationScreen() {
         const loggedInUser = await AsyncStorage.getItem('loggedInUser');
         if (loggedInUser) {
           const { username } = JSON.parse(loggedInUser);
-          const response = await fetch(`https://watchtower-citizen-mobile.onrender.com/api/auth/citizens`);
+          const response = await fetch(
+            `https://watchtower-citizen-mobile.onrender.com/api/auth/citizens`
+          );
           if (!response.ok) {
             throw new Error('Failed to fetch citizen data');
           }
@@ -33,7 +36,9 @@ export default function NotificationScreen() {
           const loggedInCitizen = data.find((citizen) => citizen.username === username);
           if (loggedInCitizen && loggedInCitizen.reports.length > 0) {
             const reportPromises = loggedInCitizen.reports.map((id) =>
-              fetch(`https://watchtower-citizen-mobile.onrender.com/api/reports/${id}`).then((response) => response.json())
+              fetch(`https://watchtower-citizen-mobile.onrender.com/api/reports/${id}`).then(
+                (response) => response.json()
+              )
             );
             const reportsData = await Promise.all(reportPromises);
             setReports(reportsData);
@@ -54,7 +59,7 @@ export default function NotificationScreen() {
   }, []);
 
   const openImageModal = (images, index) => {
-    setCurrentImages(images);
+    setCurrentImages(images.map(getImageUrlById));
     setCurrentImageIndex(index);
     setModalVisible(true);
   };
@@ -91,37 +96,10 @@ export default function NotificationScreen() {
               <ReportCard
                 category={report.disasterCategory}
                 description={report.disasterInfo}
+                images={report.disasterImages}
                 status={report.disasterStatus}
                 rescuedBy={report.rescuedBy}
               />
-              {report.disasterImages && report.disasterImages.length > 0 && (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  style={styles.imageContainer}
-                >
-                  {report.disasterImages.map((imageId, imgIndex) => (
-                    <TouchableOpacity
-                      key={imageId}
-                      onPress={() =>
-                        openImageModal(
-                          report.disasterImages.map(
-                            (id) => `https://watchtower-citizen-mobile.onrender.com/api/reports/image/${id}`
-                          ),
-                          imgIndex
-                        )
-                      }
-                    >
-                      <Image
-                        source={{
-                          uri: `https://watchtower-citizen-mobile.onrender.com/api/reports/image/${imageId}`,
-                        }}
-                        style={styles.image}
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              )}
             </View>
           ))}
         </ScrollView>
@@ -156,6 +134,9 @@ export default function NotificationScreen() {
     </View>
   );
 }
+
+// Styles remain unchanged.
+
 
 const styles = StyleSheet.create({
   container: {

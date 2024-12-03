@@ -24,10 +24,11 @@ app.use(
 app.use(express.json()); // Parse JSON bodies
 
 // Initialize GridFS after MongoDB connection
-mongoose.connection.once('open', () => {
-  console.log('MongoDB connected and GridFS initialized.');
-  connectGridFs(mongoose.connection); // Initialize GridFS
+mongoose.connection.once("open", () => {
+  console.log("MongoDB connected and GridFS initialized.");
+  connectGridFs(mongoose.connection);
 });
+
 
 // Routes
 app.use('/api/auth', authRoutes);
